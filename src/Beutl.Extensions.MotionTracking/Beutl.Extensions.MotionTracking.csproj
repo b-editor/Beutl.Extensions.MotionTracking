@@ -1,0 +1,32 @@
+<Project Sdk="Beutl.Extensibility.Sdk/2.0.0-preview.10">
+
+    <PropertyGroup>
+        <PackageId>Beutl.Extensions.MotionTracking</PackageId>
+        <Title>モーショントラッキング</Title>
+        <Description>動画の中の点を追跡し、その動きをキーフレームとしてオブジェクトに適用します。手ブレの補正（スタビライズ）もできます</Description>
+        <PackageTags>motion,tracking,tracker,stabilize,モーショントラッキング,トラッキング,追跡,スタビライズ,手ブレ補正</PackageTags>
+        <Version>0.1.0</Version>
+        <AssemblyVersion>0.1.0.0</AssemblyVersion>
+        <Authors>Yuto Terada</Authors>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>icon.png</PackageIcon>
+        <BeutlAutoReferenceSourceGenerators>false</BeutlAutoReferenceSourceGenerators>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Beutl.Extensions.MotionTracking.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- The icons Beutl's own tool tabs use. Beutl ships these assemblies, so compile against the same version
+             and leave them, and what they pull in (such as native SkiaSharp), out of the output: at run time the
+             extension uses Beutl's copies. Same exclusion as the SDK applies to the Beutl packages. -->
+        <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="2.1.345" ExcludeAssets="runtime;native" PrivateAssets="all" />
+        <PackageReference Include="FluentIcons.Common" Version="2.1.345" ExcludeAssets="runtime;native" PrivateAssets="all" />
+        <PackageReference Include="FluentIcons.Resources.Avalonia" Version="2.1.345" ExcludeAssets="runtime;native" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\assets\icon.png" Pack="true" PackagePath="\" Visible="false" />
+    </ItemGroup>
+</Project>
