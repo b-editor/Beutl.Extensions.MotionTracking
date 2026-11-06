@@ -149,18 +149,20 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
             },
             [!IsVisibleProperty] = new Binding("CurrentFrame.Value") { Converter = ObjectConverters.IsNull },
         };
+        // The frame and the bar under it are drawn like the groups of settings, which stand out in either theme; the
+        // fill the "無音区間の分割" tab gives its waveform is almost white in the light theme.
         var card = new Border
         {
             Padding = new Thickness(8),
             Child = new Panel { ClipToBounds = true, Children = { _canvas, noFrame } },
         };
-        WithResource(card, Border.BackgroundProperty, "ControlFillColorSecondaryBrush");
-        WithResource(card, Border.CornerRadiusProperty, "ControlCornerRadius");
+        card.Classes.Add("options-group");
 
-        WithResource(_rangeBar, TrackRangeBar.BackgroundProperty, "ControlFillColorSecondaryBrush");
-        WithResource(_rangeBar, TrackRangeBar.CornerRadiusProperty, "ControlCornerRadius");
+        _rangeBar.Background = Brushes.Transparent;
         WithResource(_rangeBar, TrackRangeBar.PlayheadBrushProperty, "AccentFillColorDefaultBrush");
         ToolTip.SetTip(_rangeBar, "トラッカーごとの追跡済みのフレームです。赤い所は一致度が低いフレームです。押すとそのフレームへ移動します");
+        var bar = new Border { Child = _rangeBar };
+        bar.Classes.Add("options-group");
 
         Button zoomOut = IconButton(Icon.ZoomOut, "縮小", () => _canvas.ZoomBy(1 / ZoomStep));
         Button zoomIn = IconButton(Icon.ZoomIn, "拡大", () => _canvas.ZoomBy(ZoomStep));
@@ -178,9 +180,9 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
             Margin = new Thickness(8),
             RowDefinitions = new RowDefinitions("*,Auto,Auto"),
             RowSpacing = 8,
-            Children = { card, _rangeBar, under },
+            Children = { card, bar, under },
         };
-        Grid.SetRow(_rangeBar, 1);
+        Grid.SetRow(bar, 1);
         Grid.SetRow(under, 2);
         return (pane, zoomOut, zoomIn, resetZoom);
     }

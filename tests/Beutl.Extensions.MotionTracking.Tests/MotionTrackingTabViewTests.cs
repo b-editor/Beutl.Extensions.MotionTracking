@@ -262,6 +262,29 @@ public class MotionTrackingTabViewTests
     }
 
     [AvaloniaTest]
+    public async Task TheFrameAndItsBarStandOutInTheLightTheme()
+    {
+        HeadlessScene.EnsureAvailable();
+        using var f = new EditorFixture();
+        Element source = f.AddMovingPicture(4, 2f, 30);
+        var tab = f.OpenTab(source);
+        (Window window, MotionTrackingTabView view) = Show(tab, theme: ThemeVariant.Light);
+        await WaitForFrame(tab);
+        Settle();
+
+        // Both sit on an outlined card, as the groups of settings do, not on a fill that is almost white in this theme.
+        foreach (Control inside in new Control[] { Find<TrackerCanvas>(view).Single(), Find<TrackRangeBar>(view).Single() })
+        {
+            Border card = inside.GetVisualAncestors().OfType<Border>().First(b => b.Classes.Contains("options-group"));
+            Assert.That(card.BorderBrush is Avalonia.Media.ISolidColorBrush { Color.A: > 0 }, Is.True);
+            Assert.That(card.BorderThickness, Is.Not.EqualTo(default(Thickness)));
+        }
+
+        Render(window, "light.png");
+        window.Close();
+    }
+
+    [AvaloniaTest]
     public void RemovingATrackerTakesItsRowAway()
     {
         HeadlessScene.EnsureAvailable();

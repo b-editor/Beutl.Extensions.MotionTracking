@@ -20,9 +20,6 @@ internal sealed class TrackRangeBar : Control
     public static readonly StyledProperty<IBrush?> PlayheadBrushProperty =
         AvaloniaProperty.Register<TrackRangeBar, IBrush?>(nameof(PlayheadBrush), Brushes.White);
 
-    public static readonly StyledProperty<CornerRadius> CornerRadiusProperty =
-        AvaloniaProperty.Register<TrackRangeBar, CornerRadius>(nameof(CornerRadius));
-
     private const double RowHeight = 6;
     private const double RowGap = 2;
     private const double Padding = 4;
@@ -35,7 +32,7 @@ internal sealed class TrackRangeBar : Control
 
     static TrackRangeBar()
     {
-        AffectsRender<TrackRangeBar>(BackgroundProperty, PlayheadBrushProperty, CornerRadiusProperty);
+        AffectsRender<TrackRangeBar>(BackgroundProperty, PlayheadBrushProperty);
     }
 
     public IBrush? Background
@@ -49,12 +46,6 @@ internal sealed class TrackRangeBar : Control
     {
         get => GetValue(PlayheadBrushProperty);
         set => SetValue(PlayheadBrushProperty, value);
-    }
-
-    public CornerRadius CornerRadius
-    {
-        get => GetValue(CornerRadiusProperty);
-        set => SetValue(CornerRadiusProperty, value);
     }
 
     public MotionTrackingTabViewModel? ViewModel
@@ -107,13 +98,12 @@ internal sealed class TrackRangeBar : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        var shape = new RoundedRect(new Rect(Bounds.Size), CornerRadius);
-        context.DrawRectangle(Background, null, shape);
+        // Filled even when clear, so that the pointer finds it everywhere.
+        if (Background is { } background)
+            context.FillRectangle(background, new Rect(Bounds.Size));
         if (_viewModel is not { FrameCount.Value: > 0 } viewModel)
             return;
 
-        // The rows run to the ends, where the corners round them off.
-        using DrawingContext.PushedState clip = context.PushClip(shape);
         long count = viewModel.FrameCount.Value;
         double width = Bounds.Width;
         double y = Padding;
