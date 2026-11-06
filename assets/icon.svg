@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>Beutl.Extensions.MotionTracking</title>
+<rect width="1024" height="1024" fill="#F4F3FF"/>
+<g transform="translate(512 512) scale(1.12) translate(-447 -512)">
+<circle cx="96.0" cy="742.0" r="14.0" fill="#A855BE" fill-opacity="0.30"/>
+<circle cx="151.6" cy="722.9" r="16.4" fill="#A855BE" fill-opacity="0.44"/>
+<circle cx="198.9" cy="676.7" r="18.8" fill="#A855BE" fill-opacity="0.58"/>
+<circle cx="246.0" cy="619.7" r="21.2" fill="#A855BE" fill-opacity="0.72"/>
+<circle cx="301.1" cy="568.7" r="23.6" fill="#A855BE" fill-opacity="0.86"/>
+<circle cx="372.0" cy="540.0" r="26.0" fill="#A855BE" fill-opacity="1.00"/>
+<path d="M 416 276 H 312 V 380 M 416 748 H 312 V 644 M 680 276 H 784 V 380 M 680 748 H 784 V 644" fill="none" stroke="#392FF0" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 482 392 Q 594.0 438.1 690 512 Q 594.0 585.9 482 632 Q 466.0 512.0 482 392 Z" fill="#FD6357" stroke="#FD6357" stroke-width="76" stroke-linejoin="round"/>
+</g>
+</svg>
