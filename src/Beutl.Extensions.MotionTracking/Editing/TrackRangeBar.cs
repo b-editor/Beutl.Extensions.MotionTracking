@@ -14,16 +14,48 @@ namespace Beutl.Extensions.MotionTracking.Editing;
 /// </summary>
 internal sealed class TrackRangeBar : Control
 {
+    public static readonly StyledProperty<IBrush?> BackgroundProperty =
+        AvaloniaProperty.Register<TrackRangeBar, IBrush?>(nameof(Background), new ImmutableSolidColorBrush(Color.FromRgb(32, 32, 36)));
+
+    public static readonly StyledProperty<IBrush?> PlayheadBrushProperty =
+        AvaloniaProperty.Register<TrackRangeBar, IBrush?>(nameof(PlayheadBrush), Brushes.White);
+
+    public static readonly StyledProperty<CornerRadius> CornerRadiusProperty =
+        AvaloniaProperty.Register<TrackRangeBar, CornerRadius>(nameof(CornerRadius));
+
     private const double RowHeight = 6;
     private const double RowGap = 2;
     private const double Padding = 4;
+    private const double PlayheadWidth = 2;
 
-    private static readonly IBrush s_background = new ImmutableSolidColorBrush(Color.FromRgb(32, 32, 36));
     private static readonly IBrush s_lowConfidence = new ImmutableSolidColorBrush(Color.FromRgb(255, 92, 72));
-    private static readonly IPen s_playhead = new ImmutablePen(new ImmutableSolidColorBrush(Colors.White), 1.5);
 
     private MotionTrackingTabViewModel? _viewModel;
     private bool _seeking;
+
+    static TrackRangeBar()
+    {
+        AffectsRender<TrackRangeBar>(BackgroundProperty, PlayheadBrushProperty, CornerRadiusProperty);
+    }
+
+    public IBrush? Background
+    {
+        get => GetValue(BackgroundProperty);
+        set => SetValue(BackgroundProperty, value);
+    }
+
+    /// <summary>The line at the playhead's frame.</summary>
+    public IBrush? PlayheadBrush
+    {
+        get => GetValue(PlayheadBrushProperty);
+        set => SetValue(PlayheadBrushProperty, value);
+    }
+
+    public CornerRadius CornerRadius
+    {
+        get => GetValue(CornerRadiusProperty);
+        set => SetValue(CornerRadiusProperty, value);
+    }
 
     public MotionTrackingTabViewModel? ViewModel
     {
@@ -75,10 +107,13 @@ internal sealed class TrackRangeBar : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        context.FillRectangle(s_background, new Rect(Bounds.Size));
+        var shape = new RoundedRect(new Rect(Bounds.Size), CornerRadius);
+        context.DrawRectangle(Background, null, shape);
         if (_viewModel is not { FrameCount.Value: > 0 } viewModel)
             return;
 
+        // The rows run to the ends, where the corners round them off.
+        using DrawingContext.PushedState clip = context.PushClip(shape);
         long count = viewModel.FrameCount.Value;
         double width = Bounds.Width;
         double y = Padding;
@@ -88,10 +123,10 @@ internal sealed class TrackRangeBar : Control
             y += RowHeight + RowGap;
         }
 
-        if (viewModel.DisplayFrame.Value is { } frame)
+        if (viewModel.DisplayFrame.Value is { } frame && PlayheadBrush is { } playhead)
         {
             double x = (frame + 0.5) / count * width;
-            context.DrawLine(s_playhead, new Point(x, 0), new Point(x, Bounds.Height));
+            context.FillRectangle(playhead, new Rect(x - PlayheadWidth / 2, 0, PlayheadWidth, Bounds.Height));
         }
     }
 

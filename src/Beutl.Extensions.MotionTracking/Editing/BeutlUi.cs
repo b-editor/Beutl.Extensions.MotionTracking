@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
-using Avalonia.Controls.Documents;
 using Avalonia.Layout;
 using Avalonia.Media;
 using FluentIcons.Avalonia.Fluent;
@@ -29,16 +28,14 @@ internal static class BeutlUi
         return WithResource(bar, Border.BorderBrushProperty, "DividerStrokeColorDefaultBrush");
     }
 
-    public static TextBlock BarTitle(string? text = null) => new()
+    /// <summary>The title of a tool bar, on one line, cut short with an ellipsis when it does not fit.</summary>
+    public static TextBlock BarTitle()
     {
-        Text = text,
-        Margin = new Thickness(8, 0),
-        VerticalAlignment = VerticalAlignment.Center,
-        TextTrimming = TextTrimming.CharacterEllipsis,
-    };
+        var title = new TextBlock { TextWrapping = TextWrapping.NoWrap, TextTrimming = TextTrimming.CharacterEllipsis };
+        return WithResource(title, StyledElement.ThemeProperty, "ToolTabBarTitleTextBlockTheme");
+    }
 
-    /// <summary>The space between the icon and the label of a <see cref="LabeledButton"/>.</summary>
-    public const double LabelSpacing = 6;
+    private const double LabelSpacing = 6;
 
     /// <summary>An icon-only button with its name as the tooltip, like the buttons in Beutl's tool bars.</summary>
     public static Button IconButton(Icon icon, string name, Action onClick)
@@ -48,25 +45,12 @@ internal static class BeutlUi
         return button;
     }
 
-    /// <summary>
-    /// A tool bar button with an icon and a label, for actions that are hard to tell apart by their icons alone. The
-    /// label is handed back so that a narrow bar can hide it and leave the icon, whose tooltip still describes it.
-    /// </summary>
-    public static Button LabeledButton(
-        Icon icon, string label, string description, Action onClick, out TextBlock labelText, bool iconAfterLabel = false)
-    {
-        Button button = BarButton(IconAndLabel(icon, label, iconAfterLabel, out labelText), description, onClick);
-        AutomationProperties.SetName(button, label);
-        AutomationProperties.SetHelpText(button, description);
-        return button;
-    }
-
     /// <summary>A button with an icon and a label that fills the width it is given, for the main actions of a panel.</summary>
     public static Button IconTextButton(Icon icon, string label, Action onClick, bool iconAfterLabel = false, string? name = null)
     {
         var button = new Button
         {
-            Content = IconAndLabel(icon, label, iconAfterLabel, out _),
+            Content = IconAndLabel(icon, label, iconAfterLabel),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Center,
         };
@@ -77,10 +61,10 @@ internal static class BeutlUi
         return button;
     }
 
-    private static StackPanel IconAndLabel(Icon icon, string label, bool iconAfterLabel, out TextBlock labelText)
+    private static StackPanel IconAndLabel(Icon icon, string label, bool iconAfterLabel)
     {
         var glyph = new FluentIcon { Icon = icon, FontSize = 16, VerticalAlignment = VerticalAlignment.Center };
-        labelText = new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center };
+        var labelText = new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center };
         var content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = LabelSpacing };
         content.Children.Add(iconAfterLabel ? labelText : glyph);
         content.Children.Add(iconAfterLabel ? glyph : labelText);
@@ -121,53 +105,25 @@ internal static class BeutlUi
     public static TextBlock SectionTitle(string text) => new() { Text = text, FontWeight = FontWeight.SemiBold };
 
     /// <summary>A bordered group, like the settings groups and lists in Beutl.</summary>
-    public static Border Group(Control child, Thickness? padding = null)
+    public static Border Group(Control child)
     {
-        var group = new Border { Child = child, Padding = padding ?? new Thickness(12) };
+        var group = new Border { Child = child, Padding = new Thickness(12) };
         group.Classes.Add("options-group");
         return group;
     }
 
-    /// <summary>The empty state Beutl's tool tabs show: an icon in a rounded tile, a title, and an optional action.</summary>
-    public static StackPanel EmptyState(Icon icon, Control title, Control? action = null)
-    {
-        var tile = new Border
-        {
-            Width = 56,
-            Height = 56,
-            CornerRadius = new CornerRadius(16),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Child = WithResource(new FluentIcon { Icon = icon, FontSize = 24 }, TextElement.ForegroundProperty, "AccentTextFillColorPrimaryBrush"),
-        };
-        WithResource(tile, Border.BackgroundProperty, "SubtleFillColorSecondaryBrush");
-
-        var panel = new StackPanel
-        {
-            Spacing = 12,
-            MaxWidth = 360,
-            Margin = new Thickness(24),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { tile, title },
-        };
-        if (action != null)
-        {
-            action.HorizontalAlignment = HorizontalAlignment.Center;
-            panel.Children.Add(action);
-        }
-
-        return panel;
-    }
-
-    public static TextBlock EmptyTitle() => new() { FontSize = 16, TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.Wrap };
-
-    /// <summary>A label and its editor on one row, like a row of Beutl's property panel.</summary>
+    /// <summary>
+    /// A label and its editor on one row, like the settings of Beutl's "無音区間の分割" tab: the label takes what the
+    /// editor leaves and wraps, with the unit in it, such as "閾値（dB）".
+    /// </summary>
     public static void AddRow(Grid grid, string label, Control editor)
     {
         int row = grid.RowDefinitions.Count;
         grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
 
-        TextBlock text = new() { Text = label, VerticalAlignment = VerticalAlignment.Center };
+        TextBlock text = new() { Text = label, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap };
+        editor.VerticalAlignment = VerticalAlignment.Center;
+        AutomationProperties.SetName(editor, label);
         Grid.SetRow(text, row);
         Grid.SetRow(editor, row);
         Grid.SetColumn(editor, 1);
@@ -175,10 +131,11 @@ internal static class BeutlUi
         grid.Children.Add(editor);
     }
 
+    /// <summary>The rows of labels and editors, whose editors are all as wide, as in the "無音区間の分割" tab.</summary>
     public static Grid Rows() => new()
     {
-        ColumnDefinitions = new ColumnDefinitions("Auto,*"),
-        ColumnSpacing = 12,
+        ColumnDefinitions = new ColumnDefinitions("*,120"),
+        ColumnSpacing = 8,
         RowSpacing = 8,
     };
 

@@ -44,10 +44,10 @@ public class MotionTrackingTabViewTests
         capture!.Save(Path.Combine(directory, name), new Avalonia.Media.Imaging.PngBitmapEncoderOptions());
     }
 
-    // The canvas fits the frame in with a margin of 8 and centres it.
+    // The canvas fits the frame in and centres it; the card around it keeps the margin.
     private static Point ToWindow(Window window, TrackerCanvas canvas, double x, double y)
     {
-        double scale = Math.Min((canvas.Bounds.Width - 16) / EditorFixture.Width, (canvas.Bounds.Height - 16) / EditorFixture.Height);
+        double scale = Math.Min(canvas.Bounds.Width / EditorFixture.Width, canvas.Bounds.Height / EditorFixture.Height);
         var inCanvas = new Point(
             (canvas.Bounds.Width - EditorFixture.Width * scale) / 2 + x * scale,
             (canvas.Bounds.Height - EditorFixture.Height * scale) / 2 + y * scale);
@@ -172,7 +172,7 @@ public class MotionTrackingTabViewTests
     }
 
     [AvaloniaTest]
-    public async Task TheBarButtonsSayWhatTheyDo()
+    public async Task TheBarZoomAndFooterAreLaidOutLikeTheSilenceSplitTab()
     {
         HeadlessScene.EnsureAvailable();
         using var f = new EditorFixture();
@@ -182,23 +182,39 @@ public class MotionTrackingTabViewTests
         await WaitForFrame(tab);
         Settle();
 
-        // With room for them, the bar's buttons say what they do.
-        string[] labeled = ["変更", "全体を表示"];
-        Assert.That(labeled.Where(name => !ShowsLabel(view, name)), Is.Empty);
+        // The bar names the video, with the buttons that act on it as icons that say what they do when pointed at.
+        Assert.That(Find<TextBlock>(view).Any(t => t.Text == tab.SourceName.Value), Is.True);
+        foreach (string name in new[] { "追跡元をタイムラインで選択", "選択中の要素を追跡元にする（追跡結果は消えます）" })
+            Assert.That(ToolTip.GetTip(ButtonNamed(view, name)), Is.EqualTo(name));
 
-        // In a very narrow tab they keep their icons and tooltips, and drop the labels that no longer fit.
-        window.Width = 340;
-        Settle();
-        Assert.That(labeled.Where(name => ShowsLabel(view, name)), Is.Empty);
-        Assert.That(labeled.Select(name => ToolTip.GetTip(ButtonNamed(view, name))), Has.All.Not.Null);
-        Render(window, "bar-narrow.png");
+        // Under the frame, only zooming in does anything until the view is zoomed.
+        Assert.That(ButtonNamed(view, "拡大").IsEnabled, Is.True);
+        Assert.That(ButtonNamed(view, "縮小").IsEnabled || ButtonNamed(view, "拡大率をリセット").IsEnabled, Is.False);
+        Click(ButtonNamed(view, "拡大"));
+        Assert.That(ButtonNamed(view, "縮小").IsEnabled && ButtonNamed(view, "拡大率をリセット").IsEnabled, Is.True);
+        Assert.That(Find<TextBlock>(view).Select(t => t.Text), Has.Member("1.5×"));
+        Click(ButtonNamed(view, "拡大率をリセット"));
+        Assert.That(ButtonNamed(view, "縮小").IsEnabled, Is.False);
+        Render(window, "wide.png");
 
-        window.Width = 1280;
+        // Applying and removing the motion sit side by side in the footer: on the right when the tab is wide, and across
+        // the tab when it is narrow, where applying takes what removing leaves.
+        AssertSideBySide();
+        Assert.That(ButtonNamed(view, "適用").TranslatePoint(default, view)!.Value.X, Is.GreaterThan(view.Bounds.Width / 2));
+        Assert.That(ButtonNamed(view, "適用").Bounds.Width, Is.GreaterThanOrEqualTo(128));
+        window.Width = 560;
         Settle();
-        Assert.That(labeled.Where(name => !ShowsLabel(view, name)), Is.Empty, "The labels come back when there is room again.");
+        AssertSideBySide();
+        Assert.That(ButtonNamed(view, "適用").Bounds.Width, Is.GreaterThan(view.Bounds.Width / 2));
         window.Close();
 
-        static bool ShowsLabel(Control view, string name) => Find<TextBlock>(ButtonNamed(view, name)).Any(t => t.Text == name);
+        void AssertSideBySide()
+        {
+            Point remove = ButtonNamed(view, "解除").TranslatePoint(default, view)!.Value;
+            Point apply = ButtonNamed(view, "適用").TranslatePoint(default, view)!.Value;
+            Assert.That(remove.Y, Is.EqualTo(apply.Y).Within(1));
+            Assert.That(remove.X, Is.LessThan(apply.X));
+        }
     }
 
     [AvaloniaTest]
@@ -270,7 +286,7 @@ public class MotionTrackingTabViewTests
     }
 
     private static Button ButtonNamed(Control view, string name) =>
-        Find<Button>(view).Single(b => AutomationProperties.GetName(b) == name);
+        Find<Button>(view).Single(b => AutomationProperties.GetName(b) == name || b.Content as string == name);
 
     private static void Click(Button button)
     {
@@ -429,7 +445,7 @@ public class MotionTrackingTabViewTests
 
         Find<Expander>(view).Single().IsExpanded = true;
         Dispatcher.UIThread.RunJobs();
-        Find<ComboBox>(view).First().SelectedIndex = 1;
+        Find<CheckBox>(view).Single(c => c.Content as string == "回転と拡大縮小も追跡する").IsChecked = false;
         Dispatcher.UIThread.RunJobs();
         Assert.That(first.Model.Value, Is.EqualTo(TrackerMotionModel.Position));
         Assert.That(second.Model.Value, Is.EqualTo(TrackerMotionModel.PositionRotationScale));

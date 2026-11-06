@@ -15,42 +15,47 @@ using static Beutl.Extensions.MotionTracking.Editing.BeutlUi;
 namespace Beutl.Extensions.MotionTracking.Editing;
 
 /// <summary>
-/// The view of the "モーショントラッキング" tool tab, laid out like Beutl's own tool tabs: the frame with the trackers
-/// over it, the frames bar under that, and the panel of trackers and what to do with the result beside it, or under
-/// it when the tab is narrow. Its DataContext is a <see cref="MotionTrackingTabViewModel"/>.
+/// The view of the "モーショントラッキング" tool tab, laid out like Beutl's "無音区間の分割" tab: the frame with the
+/// trackers over it, with the bar of tracked frames and the zoom buttons under it; the settings beside them, or under
+/// them when the tab is narrow; and a footer with what happened and the button that applies the motion. Its
+/// DataContext is a <see cref="MotionTrackingTabViewModel"/>.
 /// </summary>
 public sealed class MotionTrackingTabView : UserControl, IDisposable
 {
-    private const double PanelWidth = 340;
-    private const double WideLayoutMinWidth = 760;
+    // Where the "無音区間の分割" tab puts its settings beside the preview, and how wide they are then.
+    private const double PanelWidth = 360;
+    private const double WideLayoutMinWidth = 800;
+    private const double ZoomStep = 1.5;
 
     private readonly TrackerCanvas _canvas = new();
     private readonly TrackRangeBar _rangeBar = new() { Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand) };
     private readonly Grid _body = new();
-    private readonly Control _viewerPane;
+    private readonly Grid _viewerPane;
     private readonly ScrollViewer _panelPane;
+    private readonly StackPanel _panelStack = new() { Spacing = 12 };
+    private readonly Border[] _groups;
+    private readonly Grid _footerLayout = new() { RowSpacing = 8, ColumnSpacing = 16 };
+    private readonly Grid _footerButtons = new() { ColumnDefinitions = new ColumnDefinitions("Auto,*"), ColumnSpacing = 8 };
+    private readonly Button _applyButton;
+    private readonly Button _zoomOut;
+    private readonly Button _zoomIn;
+    private readonly Button _resetZoom;
     private readonly ListBox _trackerList;
     private readonly StackPanel _trackerSettings;
     private readonly NumericUpDown _patternWidth = SizeEditor();
     private readonly NumericUpDown _patternHeight = SizeEditor();
     private readonly NumericUpDown _searchWidth = SizeEditor();
     private readonly NumericUpDown _searchHeight = SizeEditor();
-    private readonly ComboBox _model = Choices("位置・回転・拡大", "位置のみ");
-    private readonly ComboBox _template = Choices("自動で更新", "最初のまま");
-    private readonly Slider _confidence = new() { Minimum = 0.3, Maximum = 0.98, SmallChange = 0.01, LargeChange = 0.05 };
-    private readonly TextBlock _confidenceText = Secondary();
+    private readonly NumericUpDown _confidence = new() { Minimum = 30, Maximum = 98, Increment = 1, FormatString = "0", ClipValueToMinMax = true };
+    private readonly CheckBox _model = new() { Content = "回転と拡大縮小も追跡する" };
+    private readonly CheckBox _template = new() { Content = "見本を自動で更新する" };
     private readonly TextBlock _featureText = Secondary();
     private readonly TextBlock _frameText = Secondary();
+    private readonly TextBlock _zoomText = Secondary();
     private readonly ComboBox _use = Choices("オブジェクトを動きに合わせる", "手ブレを補正（固定する）", "手ブレを補正（滑らかにする）");
-    private readonly ComboBox _density = Choices("すべてのフレーム", "標準（誤差 0.1px）", "少なめ（誤差 0.5px）");
+    private readonly ComboBox _density = Choices("毎フレーム", "標準", "少なめ");
     private readonly NumericUpDown _smooth = new() { Minimum = 0, Maximum = 120, Increment = 1, FormatString = "0", ClipValueToMinMax = true };
     private readonly Control _targetRow;
-    private readonly List<TextBlock> _barLabels = [];
-    private Grid _barGrid = null!;
-    private Control _barStart = null!;
-    private Control _barEnd = null!;
-    private bool _barLabelsShown = true;
-    private double _barLabelsWidth;
     private readonly List<IDisposable> _subscriptions = [];
     private readonly List<IDisposable> _trackerSubscriptions = [];
     private MotionTrackingTabViewModel? _viewModel;
@@ -60,54 +65,32 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
 
     public MotionTrackingTabView()
     {
-        // The frame takes all the room it can; the bar under it takes what its rows need.
-        var viewer = new DockPanel { LastChildFill = true };
-        DockPanel.SetDock(_rangeBar, Dock.Bottom);
-        viewer.Children.Add(_rangeBar);
-
-        // Outside the source there is no frame to show, and nothing to place a tracker on.
-        var noFrameText = new TextBlock { Text = "再生ヘッドが追跡元の範囲の外にあります", Foreground = Brushes.White, VerticalAlignment = VerticalAlignment.Center };
-        var noFrame = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 8,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(0, 12, 0, 0),
-            Children = { noFrameText, TextButton("追跡元の先頭へ移動", () => ViewModel?.SeekToFrame(0)) },
-            [!IsVisibleProperty] = new Binding("CurrentFrame.Value") { Converter = ObjectConverters.IsNull },
-        };
-        viewer.Children.Add(new Panel { Children = { _canvas, noFrame } });
-        _viewerPane = viewer;
-
+        (_viewerPane, _zoomOut, _zoomIn, _resetZoom) = BuildViewer();
         (_trackerList, _trackerSettings) = BuildTrackerControls();
         _targetRow = BuildTargetRow();
+        _groups = [Group(BuildTrackerGroup()), Group(BuildTrackSection()), Group(BuildApplyGroup())];
+        foreach (Border group in _groups)
+            _panelStack.Children.Add(group);
         _panelPane = new ScrollViewer
         {
+            Margin = new Thickness(8),
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            Content = BuildPanel(),
+            Content = _panelStack,
         };
 
         _body.Children.Add(_viewerPane);
         _body.Children.Add(_panelPane);
         _body[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
 
-        TextBlock noSourceTitle = EmptyTitle();
-        noSourceTitle[!TextBlock.TextProperty] = new Binding("SourceMessage.Value");
-        StackPanel noSource = EmptyState(Icon.Target, noSourceTitle, TextButton("選択中の要素を使う", () => ViewModel?.UseSelectionAsSource(), accent: true));
-        noSource[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNull };
-
-        var page = new DockPanel { LastChildFill = true };
         Border bar = BuildToolBar();
-        DockPanel.SetDock(bar, Dock.Top);
-        page.Children.Add(bar);
-        Control status = BuildStatusLine();
-        DockPanel.SetDock(status, Dock.Bottom);
-        page.Children.Add(status);
-        page.Children.Add(new Panel { Children = { _body, noSource } });
-        Content = page;
+        var content = new Panel { Children = { _body, BuildEmptyState() } };
+        (Border footer, _applyButton) = BuildFooter();
+        Grid.SetRow(content, 1);
+        Grid.SetRow(footer, 2);
+        Content = new Grid { RowDefinitions = new RowDefinitions("Auto,*,Auto"), Children = { bar, content, footer } };
 
         ApplyLayout(wide: true);
+        UpdateZoom();
     }
 
     private MotionTrackingTabViewModel? ViewModel => DataContext as MotionTrackingTabViewModel;
@@ -118,7 +101,6 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         Maximum = TrackerViewModel.MaxHalfSize * 2,
         Increment = 2,
         FormatString = "0",
-        MinWidth = 96,
         ClipValueToMinMax = true,
     };
 
@@ -130,86 +112,145 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         return combo;
     }
 
+    // The name of the video being tracked, and the buttons that act on it, as the "無音区間の分割" tab shows its audio.
     private Border BuildToolBar()
     {
-        // The video being tracked, with the buttons that act on it beside its name.
         TextBlock title = BarTitle();
-        title[!TextBlock.TextProperty] = new Binding("SourceName.Value") { StringFormat = "追跡元: {0}" };
-        title.MaxWidth = 280;
+        title[!TextBlock.TextProperty] = new Binding("SourceName.Value");
+        title[!ToolTip.TipProperty] = new Binding("SourceName.Value");
+        title[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
         Button locate = IconButton(Icon.Search, "追跡元をタイムラインで選択", () => ViewModel?.SelectSourceInTimeline());
-        Button change = Labeled(Icon.ArrowSwap, "変更", "選択中の要素を追跡元にする（追跡結果は消えます）", () => ViewModel?.UseSelectionAsSource());
+        locate[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
+        Button change = IconButton(Icon.ArrowSwap, "選択中の要素を追跡元にする（追跡結果は消えます）", () => ViewModel?.UseSelectionAsSource());
         change[!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not };
-        _barStart = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, Children = { title, locate, change } };
-        _barEnd = Labeled(Icon.ZoomFit, "全体を表示", "フレーム全体を表示", () => _canvas.ResetView());
 
-        // Until there is a video to track they have nothing to act on, and the empty state says how to start.
-        foreach (Control group in new[] { _barStart, _barEnd })
-            group[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
+        var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, Children = { locate, change } };
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), Children = { title, actions } };
+        Grid.SetColumn(actions, 1);
+        return ToolBar(grid);
+    }
 
+    // The frame on a card like the "無音区間の分割" tab's waveform, the bar of tracked frames under it, and the frame
+    // number beside the zoom buttons.
+    private (Grid Pane, Button ZoomOut, Button ZoomIn, Button ResetZoom) BuildViewer()
+    {
+        // Outside the source there is no frame to show, and nothing to place a tracker on.
+        var noFrame = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 8,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(0, 12, 0, 0),
+            Children =
+            {
+                new TextBlock { Text = "再生ヘッドが追跡元の範囲の外にあります", VerticalAlignment = VerticalAlignment.Center },
+                TextButton("追跡元の先頭へ移動", () => ViewModel?.SeekToFrame(0)),
+            },
+            [!IsVisibleProperty] = new Binding("CurrentFrame.Value") { Converter = ObjectConverters.IsNull },
+        };
+        var card = new Border
+        {
+            Padding = new Thickness(8),
+            Child = new Panel { ClipToBounds = true, Children = { _canvas, noFrame } },
+        };
+        WithResource(card, Border.BackgroundProperty, "ControlFillColorSecondaryBrush");
+        WithResource(card, Border.CornerRadiusProperty, "ControlCornerRadius");
+
+        WithResource(_rangeBar, TrackRangeBar.BackgroundProperty, "ControlFillColorSecondaryBrush");
+        WithResource(_rangeBar, TrackRangeBar.CornerRadiusProperty, "ControlCornerRadius");
+        WithResource(_rangeBar, TrackRangeBar.PlayheadBrushProperty, "AccentFillColorDefaultBrush");
+        ToolTip.SetTip(_rangeBar, "トラッカーごとの追跡済みのフレームです。赤い所は一致度が低いフレームです。押すとそのフレームへ移動します");
+
+        Button zoomOut = IconButton(Icon.ZoomOut, "縮小", () => _canvas.ZoomBy(1 / ZoomStep));
+        Button zoomIn = IconButton(Icon.ZoomIn, "拡大", () => _canvas.ZoomBy(ZoomStep));
+        Button resetZoom = IconButton(Icon.ArrowAutofitContent, "拡大率をリセット", () => _canvas.ResetView());
+        _canvas.ZoomChanged += (_, _) => UpdateZoom();
         _frameText.VerticalAlignment = VerticalAlignment.Center;
         _frameText.TextWrapping = TextWrapping.NoWrap;
-        _frameText.Margin = new Thickness(8, 0);
-        _barGrid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), Children = { _barStart, _frameText, _barEnd } };
-        Grid.SetColumn(_frameText, 1);
-        Grid.SetColumn(_barEnd, 2);
-        _barGrid.LayoutUpdated += (_, _) => FitBarLabels();
-        return ToolBar(_barGrid);
+        _zoomText.VerticalAlignment = VerticalAlignment.Center;
+        var zoom = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Children = { _zoomText, zoomOut, zoomIn, resetZoom } };
+        var under = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), Children = { _frameText, zoom } };
+        Grid.SetColumn(zoom, 1);
 
-        Button Labeled(Icon icon, string label, string description, Action onClick, bool iconAfterLabel = false)
+        var pane = new Grid
         {
-            Button button = LabeledButton(icon, label, description, onClick, out TextBlock text, iconAfterLabel);
-            _barLabels.Add(text);
-            return button;
-        }
+            Margin = new Thickness(8),
+            RowDefinitions = new RowDefinitions("*,Auto,Auto"),
+            RowSpacing = 8,
+            Children = { card, _rangeBar, under },
+        };
+        Grid.SetRow(_rangeBar, 1);
+        Grid.SetRow(under, 2);
+        return (pane, zoomOut, zoomIn, resetZoom);
     }
 
-    // The bar's buttons show their labels while there is room for them, and only their icons, whose tooltips say the
-    // same, when the tab is too narrow. The labels' width is taken while they are shown, so it is known when they are not.
-    private void FitBarLabels()
+    private void UpdateZoom()
     {
-        double room = _barGrid.Bounds.Width;
-        if (room <= 0)
-            return;
-
-        if (_barLabelsShown)
-        {
-            _barLabelsWidth = 0;
-            foreach (TextBlock label in _barLabels)
-                _barLabelsWidth += label.DesiredSize.Width + LabelSpacing;
-        }
-
-        double frame = string.IsNullOrEmpty(_frameText.Text) ? 0 : _frameText.TextLayout.Width + _frameText.Margin.Left + _frameText.Margin.Right;
-        double needed = _barStart.DesiredSize.Width + _barEnd.DesiredSize.Width + frame;
-        // Showing them again wants a little more room than keeping them, so that rounding cannot flip them back and forth.
-        bool show = _barLabelsShown ? needed <= room : needed + _barLabelsWidth + 8 <= room;
-        if (show == _barLabelsShown)
-            return;
-
-        _barLabelsShown = show;
-        foreach (TextBlock label in _barLabels)
-            label.IsVisible = show;
+        double zoom = _canvas.Zoom;
+        _zoomText.Text = $"{zoom:0.#}×";
+        _zoomIn.IsEnabled = zoom < TrackerCanvas.MaxZoom;
+        _zoomOut.IsEnabled = _resetZoom.IsEnabled = zoom > 1;
     }
 
-    private Control BuildStatusLine()
+    // Like the "無音区間の分割" tab before it has audio: a line that says what to do, here with the button that does it.
+    private Control BuildEmptyState()
     {
+        TextBlock message = Secondary();
+        message[!TextBlock.TextProperty] = new Binding("SourceMessage.Value");
+        Button use = TextButton("選択中の要素を使う", () => ViewModel?.UseSelectionAsSource(), accent: true);
+        use.HorizontalAlignment = HorizontalAlignment.Left;
+        return new StackPanel
+        {
+            Margin = new Thickness(16),
+            Spacing = 12,
+            Children = { message, use },
+            [!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNull },
+        };
+    }
+
+    // Like the footer of the "無音区間の分割" tab: what happened, how far tracking has got, and the button that applies.
+    private (Border Footer, Button Apply) BuildFooter()
+    {
+        TextBlock status = Secondary();
+        status[!TextBlock.TextProperty] = new Binding("Status.Value");
+        status[!IsVisibleProperty] = new Binding("Status.Value") { Converter = StringConverters.IsNotNullOrEmpty };
         var progress = new ProgressBar
         {
+            Height = 4,
             Minimum = 0,
             Maximum = 1,
-            Width = 120,
-            VerticalAlignment = VerticalAlignment.Center,
             [!RangeBase.ValueProperty] = new Binding("Progress.Value"),
             [!IsVisibleProperty] = new Binding("IsTracking.Value"),
         };
-        TextBlock message = Secondary();
-        message.VerticalAlignment = VerticalAlignment.Center;
-        message[!TextBlock.TextProperty] = new Binding("Status.Value");
-        var row = new DockPanel { Margin = new Thickness(8, 4), LastChildFill = true };
-        DockPanel.SetDock(progress, Dock.Right);
-        row.Children.Add(progress);
-        row.Children.Add(message);
-        row[!IsVisibleProperty] = new Binding("Status.Value") { Converter = StringConverters.IsNotNullOrEmpty };
-        return row;
+        var state = new StackPanel { Spacing = 4, VerticalAlignment = VerticalAlignment.Center, Children = { status, progress } };
+
+        // Removing what was applied sits beside applying it, which keeps the room it has in the "無音区間の分割" tab.
+        Button remove = TextButton("解除", () => ViewModel?.RemoveApplied());
+        ToolTip.SetTip(remove, "適用したキーフレームを取り除きます");
+        Button apply = TextButton("適用", () => ViewModel?.Apply(), accent: true);
+        apply.HorizontalAlignment = HorizontalAlignment.Stretch;
+        _footerButtons.Children.Add(remove);
+        _footerButtons.Children.Add(apply);
+        Grid.SetColumn(apply, 1);
+        _footerButtons[!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not };
+        _footerButtons[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
+        _footerLayout.Children.Add(state);
+        _footerLayout.Children.Add(_footerButtons);
+
+        var footer = new Border { Padding = new Thickness(12), BorderThickness = new Thickness(0, 1, 0, 0), Child = _footerLayout };
+        WithResource(footer, Border.BorderBrushProperty, "DividerStrokeColorDefaultBrush");
+        // Before there is a video, it still says why the button did nothing.
+        footer[!IsVisibleProperty] = new MultiBinding
+        {
+            Converter = BoolConverters.Or,
+            Bindings =
+            {
+                new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull },
+                new Binding("Status.Value") { Converter = StringConverters.IsNotNullOrEmpty },
+            },
+        };
+        return (footer, apply);
     }
 
     private (ListBox List, StackPanel Settings) BuildTrackerControls()
@@ -224,24 +265,14 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         };
 
         Grid sizes = Rows();
-        AddRow(sizes, "パターン幅", _patternWidth);
-        AddRow(sizes, "パターン高さ", _patternHeight);
-        AddRow(sizes, "検索の幅", _searchWidth);
-        AddRow(sizes, "検索の高さ", _searchHeight);
-        AddRow(sizes, "追跡内容", _model);
-        AddRow(sizes, "見本の更新", _template);
-        ToolTip.SetTip(_model, "「位置のみ」では、回転や拡大縮小するパターンを追跡すると位置が少しずつずれます");
-        ToolTip.SetTip(_template, "比べる見本を、見た目の変化に合わせて更新するか、追跡を始めたときの見た目のままにするかを選びます");
-
-        _confidenceText.VerticalAlignment = VerticalAlignment.Center;
-        _confidenceText.MinWidth = 36;
-        _confidenceText.TextAlignment = TextAlignment.Right;
-        var confidenceRow = new DockPanel { LastChildFill = true };
-        DockPanel.SetDock(_confidenceText, Dock.Right);
-        confidenceRow.Children.Add(_confidenceText);
-        confidenceRow.Children.Add(_confidence);
-        AddRow(sizes, "止める信頼度", confidenceRow);
-        ToolTip.SetTip(confidenceRow, "パターンとの一致度がこれを下回ると、そのトラッカーは止まります。見失っても動き続けるときは上げ、すぐ止まるときは下げます");
+        AddRow(sizes, "パターン幅（px）", _patternWidth);
+        AddRow(sizes, "パターン高さ（px）", _patternHeight);
+        AddRow(sizes, "検索の幅（px）", _searchWidth);
+        AddRow(sizes, "検索の高さ（px）", _searchHeight);
+        AddRow(sizes, "止める信頼度（%）", _confidence);
+        ToolTip.SetTip(_confidence, "パターンとの一致度がこれを下回ると、そのトラッカーは止まります");
+        ToolTip.SetTip(_model, "オフにすると位置だけを追跡します");
+        ToolTip.SetTip(_template, "オフにすると、追跡を始めたときの見た目と比べ続けます");
 
         var clear = new WrapPanel
         {
@@ -261,20 +292,18 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
             Header = "詳細設定",
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Stretch,
-            Content = new StackPanel { Spacing = 8, Children = { sizes, clear } },
+            Content = new StackPanel { Spacing = 8, Children = { sizes, _model, _template, clear } },
         };
 
         _patternWidth.ValueChanged += (_, e) => Edit(tracker => ViewModel!.SetPatternSize(tracker, ToHalf(e.NewValue), tracker.PatternHalfHeight.Value));
         _patternHeight.ValueChanged += (_, e) => Edit(tracker => ViewModel!.SetPatternSize(tracker, tracker.PatternHalfWidth.Value, ToHalf(e.NewValue)));
         _searchWidth.ValueChanged += (_, e) => Edit(tracker => ViewModel!.SetSearchSize(tracker, ToHalf(e.NewValue), tracker.SearchHalfHeight.Value));
         _searchHeight.ValueChanged += (_, e) => Edit(tracker => ViewModel!.SetSearchSize(tracker, tracker.SearchHalfWidth.Value, ToHalf(e.NewValue)));
-        _model.SelectionChanged += (_, _) => Edit(tracker => tracker.Model.Value = (TrackerMotionModel)_model.SelectedIndex);
-        _template.SelectionChanged += (_, _) => Edit(tracker => tracker.Template.Value = (TrackerTemplateMode)_template.SelectedIndex);
-        _confidence.ValueChanged += (_, e) =>
-        {
-            _confidenceText.Text = $"{e.NewValue:P0}";
-            Edit(tracker => tracker.MinConfidence.Value = (float)e.NewValue);
-        };
+        _confidence.ValueChanged += (_, e) => Edit(tracker => tracker.MinConfidence.Value = (float)((e.NewValue ?? 75) / 100));
+        _model.IsCheckedChanged += (_, _) => Edit(tracker =>
+            tracker.Model.Value = _model.IsChecked == true ? TrackerMotionModel.PositionRotationScale : TrackerMotionModel.Position);
+        _template.IsCheckedChanged += (_, _) => Edit(tracker =>
+            tracker.Template.Value = _template.IsChecked == true ? TrackerTemplateMode.Adaptive : TrackerTemplateMode.Fixed);
 
         var settings = new StackPanel
         {
@@ -345,7 +374,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         return new StackPanel { Spacing = 6, Children = { line, use } };
     }
 
-    private Control BuildPanel()
+    private Control BuildTrackerGroup()
     {
         var trackerButtons = new StackPanel
         {
@@ -370,101 +399,8 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         trackerHeader.Children.Add(trackerButtons);
         Grid.SetColumn(trackerButtons, 1);
 
-        var trackerGroup = new StackPanel
-        {
-            Spacing = 8,
-            Children = { trackerHeader, _trackerList, _trackerSettings },
-        };
         _trackerSettings[!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not };
-
-        var channels = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 12,
-            Children =
-            {
-                Check("位置", "UsePosition.Value"),
-                Check("回転", "UseRotation.Value"),
-                Check("拡大縮小", "UseScale.Value"),
-            },
-        };
-
-        Grid options = Rows();
-        AddRow(options, "滑らかさ", WithSuffix(_smooth, "フレーム"));
-        AddRow(options, "キーフレーム", _density);
-        _smooth.ValueChanged += (_, e) =>
-        {
-            if (!_updating && ViewModel is { } viewModel)
-                viewModel.SmoothRadius.Value = (int)(e.NewValue ?? 0);
-        };
-        _use.SelectionChanged += (_, _) =>
-        {
-            if (!_updating && ViewModel is { } viewModel)
-                viewModel.Use.Value = (MotionUse)_use.SelectedIndex;
-            UpdateUseHint();
-        };
-        _density.SelectionChanged += (_, _) =>
-        {
-            if (!_updating && ViewModel is { } viewModel)
-                viewModel.Density.Value = (KeyframeDensity)_density.SelectedIndex;
-        };
-
-        var buttons = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 6,
-            Children =
-            {
-                TextButton("適用", () => ViewModel?.Apply(), accent: true),
-                TextButton("解除", () => ViewModel?.RemoveApplied()),
-            },
-        };
-
-        var applyGroup = new StackPanel
-        {
-            Spacing = 8,
-            Children = { SectionTitle("適用"), _use, _targetRow, channels, options, buttons },
-            [!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not },
-        };
-
-        UpdateUseHint();
-        return new StackPanel
-        {
-            Spacing = 8,
-            Margin = new Thickness(8),
-            Children = { Group(trackerGroup), Group(BuildTrackSection()), Group(applyGroup) },
-        };
-
-        static Control Check(string text, string path) => new CheckBox
-        {
-            Content = text,
-            MinWidth = 0,
-            [!ToggleButton.IsCheckedProperty] = new Binding(path) { Mode = BindingMode.TwoWay },
-        };
-
-        static Control WithSuffix(Control editor, string suffix)
-        {
-            var row = new DockPanel { LastChildFill = true };
-            TextBlock text = Secondary(suffix);
-            text.VerticalAlignment = VerticalAlignment.Center;
-            text.Margin = new Thickness(6, 0, 0, 0);
-            DockPanel.SetDock(text, Dock.Right);
-            row.Children.Add(text);
-            row.Children.Add(editor);
-            return row;
-        }
-    }
-
-    private void UpdateUseHint()
-    {
-        var use = (MotionUse)Math.Max(_use.SelectedIndex, 0);
-        _targetRow.IsVisible = use == MotionUse.Follow;
-        ToolTip.SetTip(_use, use switch
-        {
-            MotionUse.Lock => "追跡元を逆向きに動かして、追跡した点を固定します",
-            MotionUse.Steady => "追跡元の細かい揺れだけを取り除きます",
-            _ => "適用先の要素が、追跡した動きについて行きます",
-        });
+        return new StackPanel { Spacing = 8, Children = { trackerHeader, _trackerList, _trackerSettings } };
     }
 
     // Between placing the trackers and using what they found. The buttons track from the playhead, and while they do,
@@ -492,6 +428,70 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         Button stop = IconTextButton(Icon.Stop, "停止", () => ViewModel?.Stop());
         stop[!IsVisibleProperty] = new Binding("IsTracking.Value");
         return new StackPanel { Spacing = 8, Children = { SectionTitle("追跡"), buttons, stop } };
+    }
+
+    // How the motion is used. The button that applies it is in the footer, as in the "無音区間の分割" tab.
+    private Control BuildApplyGroup()
+    {
+        var channels = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 12,
+            Children =
+            {
+                Check("位置", "UsePosition.Value"),
+                Check("回転", "UseRotation.Value"),
+                Check("拡大縮小", "UseScale.Value"),
+            },
+        };
+
+        Grid options = Rows();
+        AddRow(options, "滑らかさ（フレーム）", _smooth);
+        AddRow(options, "キーフレーム", _density);
+        ToolTip.SetTip(_density, "「標準」は誤差 0.1px、「少なめ」は誤差 0.5px までに収まるように間引きます");
+        _smooth.ValueChanged += (_, e) =>
+        {
+            if (!_updating && ViewModel is { } viewModel)
+                viewModel.SmoothRadius.Value = (int)(e.NewValue ?? 0);
+        };
+        _use.SelectionChanged += (_, _) =>
+        {
+            if (!_updating && ViewModel is { } viewModel)
+                viewModel.Use.Value = (MotionUse)_use.SelectedIndex;
+            UpdateUseHint();
+        };
+        _density.SelectionChanged += (_, _) =>
+        {
+            if (!_updating && ViewModel is { } viewModel)
+                viewModel.Density.Value = (KeyframeDensity)_density.SelectedIndex;
+        };
+
+        UpdateUseHint();
+        return new StackPanel
+        {
+            Spacing = 8,
+            Children = { SectionTitle("適用"), _use, _targetRow, channels, options },
+            [!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not },
+        };
+
+        static Control Check(string text, string path) => new CheckBox
+        {
+            Content = text,
+            MinWidth = 0,
+            [!ToggleButton.IsCheckedProperty] = new Binding(path) { Mode = BindingMode.TwoWay },
+        };
+    }
+
+    private void UpdateUseHint()
+    {
+        var use = (MotionUse)Math.Max(_use.SelectedIndex, 0);
+        _targetRow.IsVisible = use == MotionUse.Follow;
+        ToolTip.SetTip(_use, use switch
+        {
+            MotionUse.Lock => "追跡元を逆向きに動かして、追跡した点を固定します",
+            MotionUse.Steady => "追跡元の細かい揺れだけを取り除きます",
+            _ => "適用先の要素が、追跡した動きについて行きます",
+        });
     }
 
     private void Edit(Action<TrackerViewModel> edit)
@@ -547,13 +547,9 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         _trackerSubscriptions.Add(tracker.PatternHalfHeight.Subscribe(value => Sync(() => _patternHeight.Value = value * 2)));
         _trackerSubscriptions.Add(tracker.SearchHalfWidth.Subscribe(value => Sync(() => _searchWidth.Value = value * 2)));
         _trackerSubscriptions.Add(tracker.SearchHalfHeight.Subscribe(value => Sync(() => _searchHeight.Value = value * 2)));
-        _trackerSubscriptions.Add(tracker.Model.Subscribe(value => Sync(() => _model.SelectedIndex = (int)value)));
-        _trackerSubscriptions.Add(tracker.Template.Subscribe(value => Sync(() => _template.SelectedIndex = (int)value)));
-        _trackerSubscriptions.Add(tracker.MinConfidence.Subscribe(value =>
-        {
-            Sync(() => _confidence.Value = value);
-            _confidenceText.Text = $"{value:P0}";
-        }));
+        _trackerSubscriptions.Add(tracker.Model.Subscribe(value => Sync(() => _model.IsChecked = value == TrackerMotionModel.PositionRotationScale)));
+        _trackerSubscriptions.Add(tracker.Template.Subscribe(value => Sync(() => _template.IsChecked = value == TrackerTemplateMode.Adaptive)));
+        _trackerSubscriptions.Add(tracker.MinConfidence.Subscribe(value => Sync(() => _confidence.Value = (decimal)Math.Round(value * 100))));
     }
 
     private void Sync(Action update)
@@ -578,7 +574,8 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         DataContext = null;
     }
 
-    // Side by side when there is room, stacked when narrow, where the frame keeps at least half of the height.
+    // Side by side when there is room, stacked when narrow, where the frame keeps at least half of the height. Side by
+    // side everything is a little tighter, as in the "無音区間の分割" tab.
     private void ApplyLayout(bool wide)
     {
         if (_layoutApplied && _wide == wide)
@@ -600,5 +597,16 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
             Grid.SetColumn(_panelPane, 0);
             Grid.SetRow(_panelPane, 1);
         }
+
+        _viewerPane.RowSpacing = wide ? 4 : 8;
+        _panelStack.Spacing = wide ? 8 : 12;
+        foreach (Border group in _groups)
+            group.Padding = new Thickness(wide ? 8 : 12);
+
+        _footerLayout.ColumnDefinitions = new ColumnDefinitions(wide ? "*,Auto" : "*");
+        _footerLayout.RowDefinitions = new RowDefinitions(wide ? "Auto" : "Auto,Auto");
+        Grid.SetColumn(_footerButtons, wide ? 1 : 0);
+        Grid.SetRow(_footerButtons, wide ? 0 : 1);
+        _applyButton.MinWidth = wide ? 128 : 0;
     }
 }

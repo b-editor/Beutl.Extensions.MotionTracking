@@ -17,14 +17,14 @@ namespace Beutl.Extensions.MotionTracking.Editing;
 /// </summary>
 internal sealed class TrackerCanvas : Control
 {
+    /// <summary>How far the view zooms in at most.</summary>
+    public const double MaxZoom = 32;
+
     private const double HandleRadius = 4;
     private const double GrabDistance = 8;
-    private const double FitMargin = 8;
-    private const double MaxZoom = 32;
     private const double LoupeSize = 160;
     private const double LoupeZoom = 5;
 
-    private static readonly IBrush s_background = new ImmutableSolidColorBrush(Color.FromRgb(16, 16, 18));
     private static readonly IBrush s_frameBackground = new ImmutableSolidColorBrush(Colors.Black);
     private static readonly ImmutableSolidColorBrush s_shadow = new(Color.FromArgb(170, 0, 0, 0));
     private static readonly IBrush s_lowConfidence = new ImmutableSolidColorBrush(Color.FromRgb(255, 92, 72));
@@ -91,23 +91,49 @@ internal sealed class TrackerCanvas : Control
         base.OnDetachedFromVisualTree(e);
     }
 
+    /// <summary>How far the view is zoomed in, from 1 for the whole frame to <see cref="MaxZoom"/>.</summary>
+    public double Zoom => _zoom;
+
+    /// <summary>Raised when the view is zoomed in or out, or shows the whole frame again.</summary>
+    public event EventHandler? ZoomChanged;
+
     /// <summary>Shows the whole frame again.</summary>
     public void ResetView()
     {
         _zoom = 1;
         _pan = default;
         InvalidateVisual();
+        ZoomChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Zooms in or out around the middle of the view.</summary>
+    public void ZoomBy(double factor) => ZoomAround(new Point(Bounds.Width / 2, Bounds.Height / 2), factor);
+
+    // What is under the point stays under it. Returns whether the zoom changed.
+    private bool ZoomAround(Point point, double factor)
+    {
+        Point scene = ToScene(point);
+        double zoom = Math.Clamp(_zoom * factor, 1, MaxZoom);
+        if (zoom == _zoom)
+            return false;
+
+        _zoom = zoom;
+        _pan = zoom == 1 ? default : _pan + (point - ToView(scene.X, scene.Y));
+        InvalidateVisual();
+        ZoomChanged?.Invoke(this, EventArgs.Empty);
+        return true;
     }
 
     private void OnRedrawRequested(object? sender, EventArgs e) => InvalidateVisual();
 
+    // The frame fills the view; the card around the view leaves the room beside it.
     private double FitScale
     {
         get
         {
             Beutl.Media.PixelSize size = _viewModel?.SceneSize ?? new Beutl.Media.PixelSize(1920, 1080);
-            double width = Math.Max(Bounds.Width - FitMargin * 2, 1);
-            double height = Math.Max(Bounds.Height - FitMargin * 2, 1);
+            double width = Math.Max(Bounds.Width, 1);
+            double height = Math.Max(Bounds.Height, 1);
             return Math.Min(width / Math.Max(size.Width, 1), height / Math.Max(size.Height, 1));
         }
     }
@@ -161,7 +187,8 @@ internal sealed class TrackerCanvas : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        context.FillRectangle(s_background, new Rect(Bounds.Size));
+        // Clear, so that the card behind shows, but still there for the pointer everywhere.
+        context.FillRectangle(Brushes.Transparent, new Rect(Bounds.Size));
         if (_viewModel is not { } viewModel)
             return;
 
@@ -534,26 +561,8 @@ internal sealed class TrackerCanvas : Control
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
         base.OnPointerWheelChanged(e);
-        Point point = e.GetPosition(this);
-        Point scene = ToScene(point);
-        double zoom = Math.Clamp(_zoom * Math.Pow(1.2, e.Delta.Y), 1, MaxZoom);
-        if (zoom == _zoom)
-            return;
-
-        _zoom = zoom;
-        if (zoom == 1)
-        {
-            _pan = default;
-        }
-        else
-        {
-            // What is under the pointer stays under it.
-            Point moved = ToView(scene.X, scene.Y);
-            _pan += point - moved;
-        }
-
-        e.Handled = true;
-        InvalidateVisual();
+        if (ZoomAround(e.GetPosition(this), Math.Pow(1.2, e.Delta.Y)))
+            e.Handled = true;
     }
 
     protected override void OnKeyDown(KeyEventArgs e)
