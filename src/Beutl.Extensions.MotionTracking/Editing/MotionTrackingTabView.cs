@@ -45,7 +45,12 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
     private readonly ComboBox _density = Choices("すべてのフレーム", "標準（誤差 0.1px）", "少なめ（誤差 0.5px）");
     private readonly NumericUpDown _smooth = new() { Minimum = 0, Maximum = 120, Increment = 1, FormatString = "0", ClipValueToMinMax = true };
     private readonly Control _targetRow;
-    private readonly TextBlock _useHint = Secondary();
+    private readonly List<TextBlock> _barLabels = [];
+    private Grid _barGrid = null!;
+    private Control _barStart = null!;
+    private Control _barEnd = null!;
+    private bool _barLabelsShown = true;
+    private double _barLabelsWidth;
     private readonly List<IDisposable> _subscriptions = [];
     private readonly List<IDisposable> _trackerSubscriptions = [];
     private MotionTrackingTabViewModel? _viewModel;
@@ -127,54 +132,62 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
 
     private Border BuildToolBar()
     {
+        // The video being tracked, with the buttons that act on it beside its name.
         TextBlock title = BarTitle();
         title[!TextBlock.TextProperty] = new Binding("SourceName.Value") { StringFormat = "追跡元: {0}" };
-        title[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
+        title.MaxWidth = 280;
+        Button locate = IconButton(Icon.Search, "追跡元をタイムラインで選択", () => ViewModel?.SelectSourceInTimeline());
+        Button change = Labeled(Icon.ArrowSwap, "変更", "選択中の要素を追跡元にする（追跡結果は消えます）", () => ViewModel?.UseSelectionAsSource());
+        change[!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not };
+        _barStart = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, Children = { title, locate, change } };
+        _barEnd = Labeled(Icon.ZoomFit, "全体を表示", "フレーム全体を表示", () => _canvas.ResetView());
 
-        Button previous = IconButton(Icon.Previous, "1 フレーム戻って追跡", () => ViewModel?.TrackAsync(-1, singleFrame: true));
-        Button backward = IconButton(Icon.Rewind, "後ろへ追跡（再生ヘッドから先頭まで）", () => ViewModel?.TrackAsync(-1));
-        Button stop = IconButton(Icon.Stop, "追跡を止める", () => ViewModel?.Stop());
-        Button forward = IconButton(Icon.FastForward, "前へ追跡（再生ヘッドから末尾まで）", () => ViewModel?.TrackAsync(1));
-        Button next = IconButton(Icon.Next, "1 フレーム進んで追跡", () => ViewModel?.TrackAsync(1, singleFrame: true));
-        foreach (Button button in new[] { previous, backward, forward, next })
-        {
-            button[!IsEnabledProperty] = new MultiBinding
-            {
-                Converter = BoolConverters.And,
-                Bindings =
-                {
-                    new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull },
-                    new Binding("IsTracking.Value") { Converter = BoolConverters.Not },
-                },
-            };
-        }
+        // Until there is a video to track they have nothing to act on, and the empty state says how to start.
+        foreach (Control group in new[] { _barStart, _barEnd })
+            group[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
 
-        stop[!IsEnabledProperty] = new Binding("IsTracking.Value");
-
-        Button useSelection = IconButton(Icon.TargetArrow, "選択中の要素を追跡元にする", () => ViewModel?.UseSelectionAsSource());
-        useSelection[!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not };
-        Button locate = IconButton(Icon.Search, "追跡元の要素をタイムラインで選択", () => ViewModel?.SelectSourceInTimeline());
-        locate[!IsEnabledProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
-        Button fit = IconButton(Icon.ArrowMaximize, "全体を表示", () => _canvas.ResetView());
-
-        var actions = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Spacing = 2,
-            Children = { previous, backward, stop, forward, next, Separator(), useSelection, locate, fit },
-        };
         _frameText.VerticalAlignment = VerticalAlignment.Center;
         _frameText.TextWrapping = TextWrapping.NoWrap;
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), Children = { title, _frameText, actions } };
-        title.MaxWidth = 280;
+        _frameText.Margin = new Thickness(8, 0);
+        _barGrid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), Children = { _barStart, _frameText, _barEnd } };
         Grid.SetColumn(_frameText, 1);
-        Grid.SetColumn(actions, 2);
-        return ToolBar(grid);
+        Grid.SetColumn(_barEnd, 2);
+        _barGrid.LayoutUpdated += (_, _) => FitBarLabels();
+        return ToolBar(_barGrid);
 
-        static Control Separator() => WithResource(
-            new Rectangle { Width = 1, Height = 16, Margin = new Thickness(6, 0), VerticalAlignment = VerticalAlignment.Center },
-            Shape.FillProperty,
-            "DividerStrokeColorDefaultBrush");
+        Button Labeled(Icon icon, string label, string description, Action onClick, bool iconAfterLabel = false)
+        {
+            Button button = LabeledButton(icon, label, description, onClick, out TextBlock text, iconAfterLabel);
+            _barLabels.Add(text);
+            return button;
+        }
+    }
+
+    // The bar's buttons show their labels while there is room for them, and only their icons, whose tooltips say the
+    // same, when the tab is too narrow. The labels' width is taken while they are shown, so it is known when they are not.
+    private void FitBarLabels()
+    {
+        double room = _barGrid.Bounds.Width;
+        if (room <= 0)
+            return;
+
+        if (_barLabelsShown)
+        {
+            _barLabelsWidth = 0;
+            foreach (TextBlock label in _barLabels)
+                _barLabelsWidth += label.DesiredSize.Width + LabelSpacing;
+        }
+
+        double frame = string.IsNullOrEmpty(_frameText.Text) ? 0 : _frameText.TextLayout.Width + _frameText.Margin.Left + _frameText.Margin.Right;
+        double needed = _barStart.DesiredSize.Width + _barEnd.DesiredSize.Width + frame;
+        // Showing them again wants a little more room than keeping them, so that rounding cannot flip them back and forth.
+        bool show = _barLabelsShown ? needed <= room : needed + _barLabelsWidth + 8 <= room;
+        if (show == _barLabelsShown)
+            return;
+
+        _barLabelsShown = show;
+        foreach (TextBlock label in _barLabels)
+            label.IsVisible = show;
     }
 
     private Control BuildStatusLine()
@@ -274,7 +287,9 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         static int ToHalf(decimal? value) => (int)((value ?? 0) / 2);
     }
 
-    private static Control BuildTrackerRow(TrackerViewModel tracker, INameScope scope)
+    // Built from bindings only. The row of a removed tracker is built once more without a tracker, and a row that
+    // threw there would leave the list unsure of its rows, drawing the removed one over the one that took its place.
+    private static Control BuildTrackerRow(TrackerViewModel? tracker, INameScope scope)
     {
         var active = new CheckBox
         {
@@ -289,8 +304,8 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
             Height = 12,
             RadiusX = 2,
             RadiusY = 2,
-            Fill = tracker.Brush,
             VerticalAlignment = VerticalAlignment.Center,
+            [!Shape.FillProperty] = new Binding(nameof(TrackerViewModel.Brush)),
         };
         var name = new TextBlock
         {
@@ -408,7 +423,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         var applyGroup = new StackPanel
         {
             Spacing = 8,
-            Children = { SectionTitle("適用"), _use, _useHint, _targetRow, channels, options, buttons },
+            Children = { SectionTitle("適用"), _use, _targetRow, channels, options, buttons },
             [!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not },
         };
 
@@ -417,7 +432,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         {
             Spacing = 8,
             Margin = new Thickness(8),
-            Children = { Group(trackerGroup), Group(applyGroup) },
+            Children = { Group(trackerGroup), Group(BuildTrackSection()), Group(applyGroup) },
         };
 
         static Control Check(string text, string path) => new CheckBox
@@ -444,12 +459,39 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
     {
         var use = (MotionUse)Math.Max(_use.SelectedIndex, 0);
         _targetRow.IsVisible = use == MotionUse.Follow;
-        _useHint.Text = use switch
+        ToolTip.SetTip(_use, use switch
         {
-            MotionUse.Lock => "追跡元の要素を逆向きに動かして、追跡した点を再生ヘッドのフレームの位置に固定します。",
-            MotionUse.Steady => "追跡元の要素の細かい揺れだけを取り除きます。「滑らかさ」が大きいほど大きな揺れまで取り除きます。",
-            _ => "再生ヘッドのフレームでは今の配置のまま、適用先の要素が追跡した動きについて行きます。",
+            MotionUse.Lock => "追跡元を逆向きに動かして、追跡した点を固定します",
+            MotionUse.Steady => "追跡元の細かい揺れだけを取り除きます",
+            _ => "適用先の要素が、追跡した動きについて行きます",
+        });
+    }
+
+    // Between placing the trackers and using what they found. The buttons track from the playhead, and while they do,
+    // the button that stops them takes their place.
+    private Control BuildTrackSection()
+    {
+        Button toStart = IconTextButton(Icon.Previous, "最初まで追跡", () => ViewModel?.TrackAsync(-1));
+        Button toEnd = IconTextButton(Icon.Next, "最後まで追跡", () => ViewModel?.TrackAsync(1), iconAfterLabel: true);
+        Button previous = IconTextButton(Icon.PreviousFrame, "1 フレーム", () => ViewModel?.TrackAsync(-1, singleFrame: true), name: "1 フレーム戻って追跡");
+        Button next = IconTextButton(Icon.NextFrame, "1 フレーム", () => ViewModel?.TrackAsync(1, singleFrame: true), iconAfterLabel: true, name: "1 フレーム進んで追跡");
+        var buttons = new Grid
+        {
+            ColumnDefinitions = new ColumnDefinitions("*,*"),
+            RowDefinitions = new RowDefinitions("Auto,Auto"),
+            ColumnSpacing = 6,
+            RowSpacing = 6,
+            Children = { toStart, toEnd, previous, next },
+            [!IsVisibleProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not },
         };
+        Grid.SetColumn(toEnd, 1);
+        Grid.SetRow(previous, 1);
+        Grid.SetRow(next, 1);
+        Grid.SetColumn(next, 1);
+
+        Button stop = IconTextButton(Icon.Stop, "停止", () => ViewModel?.Stop());
+        stop[!IsVisibleProperty] = new Binding("IsTracking.Value");
+        return new StackPanel { Spacing = 8, Children = { SectionTitle("追跡"), buttons, stop } };
     }
 
     private void Edit(Action<TrackerViewModel> edit)

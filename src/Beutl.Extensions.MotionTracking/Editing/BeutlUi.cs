@@ -37,18 +37,66 @@ internal static class BeutlUi
         TextTrimming = TextTrimming.CharacterEllipsis,
     };
 
+    /// <summary>The space between the icon and the label of a <see cref="LabeledButton"/>.</summary>
+    public const double LabelSpacing = 6;
+
     /// <summary>An icon-only button with its name as the tooltip, like the buttons in Beutl's tool bars.</summary>
     public static Button IconButton(Icon icon, string name, Action onClick)
+    {
+        Button button = BarButton(new FluentIcon { Icon = icon, FontSize = 16 }, name, onClick);
+        AutomationProperties.SetName(button, name);
+        return button;
+    }
+
+    /// <summary>
+    /// A tool bar button with an icon and a label, for actions that are hard to tell apart by their icons alone. The
+    /// label is handed back so that a narrow bar can hide it and leave the icon, whose tooltip still describes it.
+    /// </summary>
+    public static Button LabeledButton(
+        Icon icon, string label, string description, Action onClick, out TextBlock labelText, bool iconAfterLabel = false)
+    {
+        Button button = BarButton(IconAndLabel(icon, label, iconAfterLabel, out labelText), description, onClick);
+        AutomationProperties.SetName(button, label);
+        AutomationProperties.SetHelpText(button, description);
+        return button;
+    }
+
+    /// <summary>A button with an icon and a label that fills the width it is given, for the main actions of a panel.</summary>
+    public static Button IconTextButton(Icon icon, string label, Action onClick, bool iconAfterLabel = false, string? name = null)
+    {
+        var button = new Button
+        {
+            Content = IconAndLabel(icon, label, iconAfterLabel, out _),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+        };
+        AutomationProperties.SetName(button, name ?? label);
+        if (name != null)
+            ToolTip.SetTip(button, name);
+        button.Click += (_, _) => onClick();
+        return button;
+    }
+
+    private static StackPanel IconAndLabel(Icon icon, string label, bool iconAfterLabel, out TextBlock labelText)
+    {
+        var glyph = new FluentIcon { Icon = icon, FontSize = 16, VerticalAlignment = VerticalAlignment.Center };
+        labelText = new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center };
+        var content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = LabelSpacing };
+        content.Children.Add(iconAfterLabel ? labelText : glyph);
+        content.Children.Add(iconAfterLabel ? glyph : labelText);
+        return content;
+    }
+
+    private static Button BarButton(Control content, string tip, Action onClick)
     {
         var button = new Button
         {
             Padding = new Thickness(6),
             VerticalAlignment = VerticalAlignment.Center,
-            Content = new FluentIcon { Icon = icon, FontSize = 16 },
+            Content = content,
         };
         WithResource(button, StyledElement.ThemeProperty, "ToolTabBarIconButtonTheme");
-        ToolTip.SetTip(button, name);
-        AutomationProperties.SetName(button, name);
+        ToolTip.SetTip(button, tip);
         button.Click += (_, _) => onClick();
         return button;
     }

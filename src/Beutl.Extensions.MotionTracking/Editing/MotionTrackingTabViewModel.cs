@@ -52,7 +52,7 @@ public enum KeyframeDensity
 /// </summary>
 public sealed class MotionTrackingTabViewModel : IToolContext
 {
-    private const string NoSourceMessage = "追跡する動画の要素をタイムラインで選んで、「選択中の要素を使う」を押してください";
+    private const string NoSourceMessage = "追跡する動画をタイムラインで選択してください";
     private const string MissingSourceMessage = "追跡元の要素が削除されました";
     private const string NoFrameHere = "再生ヘッドが追跡元の範囲の外にあります";
 

@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Headless.NUnit;
@@ -168,6 +169,122 @@ public class MotionTrackingTabViewTests
         Assert.That(canvas.Bounds.Width, Is.GreaterThan(500));
         Render(window, "narrow.png");
         window.Close();
+    }
+
+    [AvaloniaTest]
+    public async Task TheBarButtonsSayWhatTheyDo()
+    {
+        HeadlessScene.EnsureAvailable();
+        using var f = new EditorFixture();
+        Element source = f.AddMovingPicture(4, 2f, 30);
+        var tab = f.OpenTab(source);
+        (Window window, MotionTrackingTabView view) = Show(tab);
+        await WaitForFrame(tab);
+        Settle();
+
+        // With room for them, the bar's buttons say what they do.
+        string[] labeled = ["変更", "全体を表示"];
+        Assert.That(labeled.Where(name => !ShowsLabel(view, name)), Is.Empty);
+
+        // In a very narrow tab they keep their icons and tooltips, and drop the labels that no longer fit.
+        window.Width = 340;
+        Settle();
+        Assert.That(labeled.Where(name => ShowsLabel(view, name)), Is.Empty);
+        Assert.That(labeled.Select(name => ToolTip.GetTip(ButtonNamed(view, name))), Has.All.Not.Null);
+        Render(window, "bar-narrow.png");
+
+        window.Width = 1280;
+        Settle();
+        Assert.That(labeled.Where(name => !ShowsLabel(view, name)), Is.Empty, "The labels come back when there is room again.");
+        window.Close();
+
+        static bool ShowsLabel(Control view, string name) => Find<TextBlock>(ButtonNamed(view, name)).Any(t => t.Text == name);
+    }
+
+    [AvaloniaTest]
+    public async Task TheTrackButtonsComeBetweenTheTrackersAndApplying()
+    {
+        HeadlessScene.EnsureAvailable();
+        using var f = new EditorFixture();
+        Element source = f.AddMovingPicture(4, 2f, 30);
+        var tab = f.OpenTab(source);
+        (Window window, MotionTrackingTabView view) = Show(tab);
+        await WaitForFrame(tab);
+        Settle();
+
+        double trackers = TopOf(view, "トラッカー");
+        double tracking = TopOf(view, "追跡");
+        double applying = TopOf(view, "適用");
+        Assert.That(trackers, Is.LessThan(tracking));
+        Assert.That(tracking, Is.LessThan(applying));
+        string[] names = ["最初まで追跡", "最後まで追跡", "1 フレーム戻って追跡", "1 フレーム進んで追跡"];
+        Assert.That(names.Select(name => ButtonNamed(view, name).TranslatePoint(default, view)!.Value.Y), Has.All.InRange(tracking, applying));
+        Assert.That(Find<Button>(view).Select(AutomationProperties.GetName), Has.None.EqualTo("停止"), "Stop shows only while tracking.");
+        Render(window, "track.png");
+
+        // While tracking, the button that stops it takes the place of those that start it.
+        tab.IsTracking.Value = true;
+        Settle();
+        Assert.That(Find<Button>(view).Select(AutomationProperties.GetName), Has.Member("停止").And.None.EqualTo("最後まで追跡"));
+        tab.IsTracking.Value = false;
+        Settle();
+
+        // The button tracks the way its label says.
+        Click(ButtonNamed(view, "最後まで追跡"));
+        for (int i = 0; i < 500 && (tab.IsTracking.Value || tab.Trackers[0].Samples.Count == 0); i++)
+        {
+            await Task.Delay(10);
+            Dispatcher.UIThread.RunJobs();
+        }
+
+        Assert.That(tab.Trackers[0].Samples.Count, Is.GreaterThan(1), tab.Status.Value);
+        window.Close();
+
+        // The top of the highest text that reads exactly so, such as a section's title.
+        static double TopOf(Control view, string text) =>
+            Find<TextBlock>(view).Where(t => t.Text == text).Min(t => t.TranslatePoint(default, view)!.Value.Y);
+    }
+
+    [AvaloniaTest]
+    public void RemovingATrackerTakesItsRowAway()
+    {
+        HeadlessScene.EnsureAvailable();
+        using var f = new EditorFixture();
+        Element source = f.AddMovingPicture(4, 2f, 30);
+        var tab = f.OpenTab(source);
+        tab.AddTracker(420, 90);
+        (Window window, MotionTrackingTabView view) = Show(tab);
+        Settle();
+        Assert.That(Find<ListBoxItem>(view), Has.Length.EqualTo(2));
+
+        tab.SelectedTracker.Value = tab.Trackers[0];
+        tab.RemoveSelectedTracker();
+        Settle();
+
+        // The row of the removed tracker must not stay behind, over the row that took its place.
+        ListBoxItem[] rows = Find<ListBoxItem>(view);
+        Assert.That(rows, Has.Length.EqualTo(1));
+        Assert.That(Find<TextBlock>(rows[0]).Select(t => t.Text), Has.Member("トラッカー 2"));
+        Render(window, "removed.png");
+        window.Close();
+    }
+
+    private static Button ButtonNamed(Control view, string name) =>
+        Find<Button>(view).Single(b => AutomationProperties.GetName(b) == name);
+
+    private static void Click(Button button)
+    {
+        button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    private static void Settle()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+            Dispatcher.UIThread.RunJobs();
+        }
     }
 
     [AvaloniaTest]
