@@ -7,6 +7,7 @@ using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Beutl.Extensions.MotionTracking.Properties;
 using Beutl.Extensions.MotionTracking.Tracking;
 using FluentIcons.Common;
 using Reactive.Bindings;
@@ -15,7 +16,7 @@ using static Beutl.Extensions.MotionTracking.Editing.BeutlUi;
 namespace Beutl.Extensions.MotionTracking.Editing;
 
 /// <summary>
-/// The view of the "モーショントラッキング" tool tab, laid out like Beutl's "無音区間の分割" tab: the frame with the
+/// The view of the motion tracking tool tab, laid out like Beutl's "無音区間の分割" tab: the frame with the
 /// trackers over it, with the bar of tracked frames and the zoom buttons under it; the settings beside them, or under
 /// them when the tab is narrow; and a footer with what happened and the button that applies the motion. Its
 /// DataContext is a <see cref="MotionTrackingTabViewModel"/>.
@@ -47,13 +48,13 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
     private readonly NumericUpDown _searchWidth = SizeEditor();
     private readonly NumericUpDown _searchHeight = SizeEditor();
     private readonly NumericUpDown _confidence = new() { Minimum = 30, Maximum = 98, Increment = 1, FormatString = "0", ClipValueToMinMax = true };
-    private readonly CheckBox _model = new() { Content = "回転と拡大縮小も追跡する" };
-    private readonly CheckBox _template = new() { Content = "見本を自動で更新する" };
+    private readonly CheckBox _model = new() { Content = Strings.TrackRotationScale };
+    private readonly CheckBox _template = new() { Content = Strings.UpdateTemplate };
     private readonly TextBlock _featureText = Secondary();
     private readonly TextBlock _frameText = Secondary();
     private readonly TextBlock _zoomText = Secondary();
-    private readonly ComboBox _use = Choices("オブジェクトを動きに合わせる", "手ブレを補正（固定する）", "手ブレを補正（滑らかにする）");
-    private readonly ComboBox _density = Choices("毎フレーム", "標準", "少なめ");
+    private readonly ComboBox _use = Choices(Strings.FollowMotion, Strings.StabilizeLock, Strings.StabilizeSmooth);
+    private readonly ComboBox _density = Choices(Strings.EveryFrame, Strings.StandardDensity, Strings.SparseDensity);
     private readonly NumericUpDown _smooth = new() { Minimum = 0, Maximum = 120, Increment = 1, FormatString = "0", ClipValueToMinMax = true };
     private readonly Control _targetRow;
     private readonly List<IDisposable> _subscriptions = [];
@@ -119,9 +120,9 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         title[!TextBlock.TextProperty] = new Binding("SourceName.Value");
         title[!ToolTip.TipProperty] = new Binding("SourceName.Value");
         title[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
-        Button locate = IconButton(Icon.Search, "追跡元をタイムラインで選択", () => ViewModel?.SelectSourceInTimeline());
+        Button locate = IconButton(Icon.Search, Strings.LocateSource, () => ViewModel?.SelectSourceInTimeline());
         locate[!IsVisibleProperty] = new Binding("Source.Value") { Converter = ObjectConverters.IsNotNull };
-        Button change = IconButton(Icon.ArrowSwap, "選択中の要素を追跡元にする（追跡結果は消えます）", () => ViewModel?.UseSelectionAsSource());
+        Button change = IconButton(Icon.ArrowSwap, Strings.UseSelectionAsSource, () => ViewModel?.UseSelectionAsSource());
         change[!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not };
 
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, Children = { locate, change } };
@@ -144,8 +145,8 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
             Margin = new Thickness(0, 12, 0, 0),
             Children =
             {
-                new TextBlock { Text = "再生ヘッドが追跡元の範囲の外にあります", VerticalAlignment = VerticalAlignment.Center },
-                TextButton("追跡元の先頭へ移動", () => ViewModel?.SeekToFrame(0)),
+                new TextBlock { Text = Strings.PlayheadOutsideSource, VerticalAlignment = VerticalAlignment.Center },
+                TextButton(Strings.GoToSourceStart, () => ViewModel?.SeekToFrame(0)),
             },
             [!IsVisibleProperty] = new Binding("CurrentFrame.Value") { Converter = ObjectConverters.IsNull },
         };
@@ -160,13 +161,13 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
 
         _rangeBar.Background = Brushes.Transparent;
         WithResource(_rangeBar, TrackRangeBar.PlayheadBrushProperty, "AccentFillColorDefaultBrush");
-        ToolTip.SetTip(_rangeBar, "トラッカーごとの追跡済みのフレームです。赤い所は一致度が低いフレームです。押すとそのフレームへ移動します");
+        ToolTip.SetTip(_rangeBar, Strings.TrackedFramesHint);
         var bar = new Border { Child = _rangeBar };
         bar.Classes.Add("options-group");
 
-        Button zoomOut = IconButton(Icon.ZoomOut, "縮小", () => _canvas.ZoomBy(1 / ZoomStep));
-        Button zoomIn = IconButton(Icon.ZoomIn, "拡大", () => _canvas.ZoomBy(ZoomStep));
-        Button resetZoom = IconButton(Icon.ArrowAutofitContent, "拡大率をリセット", () => _canvas.ResetView());
+        Button zoomOut = IconButton(Icon.ZoomOut, Strings.ZoomOut, () => _canvas.ZoomBy(1 / ZoomStep));
+        Button zoomIn = IconButton(Icon.ZoomIn, Strings.ZoomIn, () => _canvas.ZoomBy(ZoomStep));
+        Button resetZoom = IconButton(Icon.ArrowAutofitContent, Strings.ResetZoom, () => _canvas.ResetView());
         _canvas.ZoomChanged += (_, _) => UpdateZoom();
         _frameText.VerticalAlignment = VerticalAlignment.Center;
         _frameText.TextWrapping = TextWrapping.NoWrap;
@@ -200,7 +201,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
     {
         TextBlock message = Secondary();
         message[!TextBlock.TextProperty] = new Binding("SourceMessage.Value");
-        Button use = TextButton("選択中の要素を使う", () => ViewModel?.UseSelectionAsSource(), accent: true);
+        Button use = TextButton(Strings.UseSelectedElement, () => ViewModel?.UseSelectionAsSource(), accent: true);
         use.HorizontalAlignment = HorizontalAlignment.Left;
         return new StackPanel
         {
@@ -228,9 +229,9 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         var state = new StackPanel { Spacing = 4, VerticalAlignment = VerticalAlignment.Center, Children = { status, progress } };
 
         // Removing what was applied sits beside applying it, which keeps the room it has in the "無音区間の分割" tab.
-        Button remove = TextButton("解除", () => ViewModel?.RemoveApplied());
-        ToolTip.SetTip(remove, "適用したキーフレームを取り除きます");
-        Button apply = TextButton("適用", () => ViewModel?.Apply(), accent: true);
+        Button remove = TextButton(Strings.Remove, () => ViewModel?.RemoveApplied());
+        ToolTip.SetTip(remove, Strings.RemoveAppliedHint);
+        Button apply = TextButton(Strings.Apply, () => ViewModel?.Apply(), accent: true);
         apply.HorizontalAlignment = HorizontalAlignment.Stretch;
         _footerButtons.Children.Add(remove);
         _footerButtons.Children.Add(apply);
@@ -267,23 +268,23 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         };
 
         Grid sizes = Rows();
-        AddRow(sizes, "パターン幅（px）", _patternWidth);
-        AddRow(sizes, "パターン高さ（px）", _patternHeight);
-        AddRow(sizes, "検索の幅（px）", _searchWidth);
-        AddRow(sizes, "検索の高さ（px）", _searchHeight);
-        AddRow(sizes, "止める信頼度（%）", _confidence);
-        ToolTip.SetTip(_confidence, "パターンとの一致度がこれを下回ると、そのトラッカーは止まります");
-        ToolTip.SetTip(_model, "オフにすると位置だけを追跡します");
-        ToolTip.SetTip(_template, "オフにすると、追跡を始めたときの見た目と比べ続けます");
+        AddRow(sizes, Strings.PatternWidth, _patternWidth);
+        AddRow(sizes, Strings.PatternHeight, _patternHeight);
+        AddRow(sizes, Strings.SearchWidth, _searchWidth);
+        AddRow(sizes, Strings.SearchHeight, _searchHeight);
+        AddRow(sizes, Strings.StopConfidence, _confidence);
+        ToolTip.SetTip(_confidence, Strings.StopConfidenceHint);
+        ToolTip.SetTip(_model, Strings.PositionOnlyHint);
+        ToolTip.SetTip(_template, Strings.FixedTemplateHint);
 
         var clear = new WrapPanel
         {
             Orientation = Orientation.Horizontal,
             Children =
             {
-                TextButton("結果を消す", () => ViewModel?.ClearSamples(ClearRange.All)),
-                TextButton("ここより前を消す", () => ViewModel?.ClearSamples(ClearRange.BeforeCurrentFrame)),
-                TextButton("ここより後を消す", () => ViewModel?.ClearSamples(ClearRange.AfterCurrentFrame)),
+                TextButton(Strings.ClearResults, () => ViewModel?.ClearSamples(ClearRange.All)),
+                TextButton(Strings.ClearBefore, () => ViewModel?.ClearSamples(ClearRange.BeforeCurrentFrame)),
+                TextButton(Strings.ClearAfter, () => ViewModel?.ClearSamples(ClearRange.AfterCurrentFrame)),
             },
         };
         foreach (Control button in clear.Children)
@@ -291,7 +292,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
 
         var details = new Expander
         {
-            Header = "詳細設定",
+            Header = Strings.AdvancedSettings,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Stretch,
             Content = new StackPanel { Spacing = 8, Children = { sizes, _model, _template, clear } },
@@ -328,7 +329,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
             VerticalAlignment = VerticalAlignment.Center,
             [!ToggleButton.IsCheckedProperty] = new Binding("IsActive.Value") { Mode = BindingMode.TwoWay },
         };
-        ToolTip.SetTip(active, "追跡と適用に使う");
+        ToolTip.SetTip(active, Strings.UseTrackerHint);
         var swatch = new Rectangle
         {
             Width = 12,
@@ -346,7 +347,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         };
         TextBlock count = Secondary();
         count.VerticalAlignment = VerticalAlignment.Center;
-        count[!TextBlock.TextProperty] = new Binding("SampleCount.Value") { StringFormat = "{0} フレーム" };
+        count[!TextBlock.TextProperty] = new Binding("SampleCount.Value") { StringFormat = Strings.SampleCountFormat };
         var row = new Grid
         {
             ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*,Auto"),
@@ -363,11 +364,11 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
     {
         TextBlock name = new() { VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
         name[!TextBlock.TextProperty] = new Binding("TargetName.Value");
-        Button use = TextButton("選択中の要素を使う", () => ViewModel?.UseSelectionAsTarget());
-        Button locate = IconButton(Icon.Search, "適用先の要素をタイムラインで選択", () => ViewModel?.SelectTargetInTimeline());
+        Button use = TextButton(Strings.UseSelectedElement, () => ViewModel?.UseSelectionAsTarget());
+        Button locate = IconButton(Icon.Search, Strings.LocateTarget, () => ViewModel?.SelectTargetInTimeline());
         locate[!IsEnabledProperty] = new Binding("Target.Value") { Converter = ObjectConverters.IsNotNull };
         var line = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), ColumnSpacing = 8 };
-        var label = new TextBlock { Text = "適用先", VerticalAlignment = VerticalAlignment.Center };
+        var label = new TextBlock { Text = Strings.Target, VerticalAlignment = VerticalAlignment.Center };
         line.Children.Add(label);
         line.Children.Add(name);
         line.Children.Add(locate);
@@ -385,17 +386,17 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
             Spacing = 2,
             Children =
             {
-                IconButton(Icon.Add, "トラッカーを追加（フレームをダブルクリックでも追加できます）", () =>
+                IconButton(Icon.Add, Strings.AddTrackerHint, () =>
                 {
                     ViewModel?.AddTracker();
                     ViewModel?.UpdateFeature();
                 }),
-                IconButton(Icon.Delete, "選択中のトラッカーを削除 (Delete)", () => ViewModel?.RemoveSelectedTracker()),
+                IconButton(Icon.Delete, Strings.RemoveTrackerHint, () => ViewModel?.RemoveSelectedTracker()),
             },
             [!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not },
         };
         var trackerHeader = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
-        TextBlock trackerTitle = SectionTitle("トラッカー");
+        TextBlock trackerTitle = SectionTitle(Strings.Trackers);
         trackerTitle.VerticalAlignment = VerticalAlignment.Center;
         trackerHeader.Children.Add(trackerTitle);
         trackerHeader.Children.Add(trackerButtons);
@@ -409,10 +410,10 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
     // the button that stops them takes their place.
     private Control BuildTrackSection()
     {
-        Button toStart = IconTextButton(Icon.Previous, "最初まで追跡", () => ViewModel?.TrackAsync(-1));
-        Button toEnd = IconTextButton(Icon.Next, "最後まで追跡", () => ViewModel?.TrackAsync(1), iconAfterLabel: true);
-        Button previous = IconTextButton(Icon.PreviousFrame, "1 フレーム", () => ViewModel?.TrackAsync(-1, singleFrame: true), name: "1 フレーム戻って追跡");
-        Button next = IconTextButton(Icon.NextFrame, "1 フレーム", () => ViewModel?.TrackAsync(1, singleFrame: true), iconAfterLabel: true, name: "1 フレーム進んで追跡");
+        Button toStart = IconTextButton(Icon.Previous, Strings.TrackToStart, () => ViewModel?.TrackAsync(-1));
+        Button toEnd = IconTextButton(Icon.Next, Strings.TrackToEnd, () => ViewModel?.TrackAsync(1), iconAfterLabel: true);
+        Button previous = IconTextButton(Icon.PreviousFrame, Strings.OneFrame, () => ViewModel?.TrackAsync(-1, singleFrame: true), name: Strings.TrackPreviousFrame);
+        Button next = IconTextButton(Icon.NextFrame, Strings.OneFrame, () => ViewModel?.TrackAsync(1, singleFrame: true), iconAfterLabel: true, name: Strings.TrackNextFrame);
         var buttons = new Grid
         {
             ColumnDefinitions = new ColumnDefinitions("*,*"),
@@ -427,9 +428,9 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         Grid.SetRow(next, 1);
         Grid.SetColumn(next, 1);
 
-        Button stop = IconTextButton(Icon.Stop, "停止", () => ViewModel?.Stop());
+        Button stop = IconTextButton(Icon.Stop, Strings.Stop, () => ViewModel?.Stop());
         stop[!IsVisibleProperty] = new Binding("IsTracking.Value");
-        return new StackPanel { Spacing = 8, Children = { SectionTitle("追跡"), buttons, stop } };
+        return new StackPanel { Spacing = 8, Children = { SectionTitle(Strings.Tracking), buttons, stop } };
     }
 
     // How the motion is used. The button that applies it is in the footer, as in the "無音区間の分割" tab.
@@ -441,16 +442,16 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
             Spacing = 12,
             Children =
             {
-                Check("位置", "UsePosition.Value"),
-                Check("回転", "UseRotation.Value"),
-                Check("拡大縮小", "UseScale.Value"),
+                Check(Strings.Position, "UsePosition.Value"),
+                Check(Strings.Rotation, "UseRotation.Value"),
+                Check(Strings.Scale, "UseScale.Value"),
             },
         };
 
         Grid options = Rows();
-        AddRow(options, "滑らかさ（フレーム）", _smooth);
-        AddRow(options, "キーフレーム", _density);
-        ToolTip.SetTip(_density, "「標準」は誤差 0.1px、「少なめ」は誤差 0.5px までに収まるように間引きます");
+        AddRow(options, Strings.SmoothingFrames, _smooth);
+        AddRow(options, Strings.Keyframes, _density);
+        ToolTip.SetTip(_density, Strings.DensityHint);
         _smooth.ValueChanged += (_, e) =>
         {
             if (!_updating && ViewModel is { } viewModel)
@@ -472,7 +473,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         return new StackPanel
         {
             Spacing = 8,
-            Children = { SectionTitle("適用"), _use, _targetRow, channels, options },
+            Children = { SectionTitle(Strings.Apply), _use, _targetRow, channels, options },
             [!IsEnabledProperty] = new Binding("IsTracking.Value") { Converter = BoolConverters.Not },
         };
 
@@ -490,9 +491,9 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         _targetRow.IsVisible = use == MotionUse.Follow;
         ToolTip.SetTip(_use, use switch
         {
-            MotionUse.Lock => "追跡元を逆向きに動かして、追跡した点を固定します",
-            MotionUse.Steady => "追跡元の細かい揺れだけを取り除きます",
-            _ => "適用先の要素が、追跡した動きについて行きます",
+            MotionUse.Lock => Strings.LockHint,
+            MotionUse.Steady => Strings.SmoothHint,
+            _ => Strings.FollowHint,
         });
     }
 
@@ -518,7 +519,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
         _subscriptions.Add(viewModel.SelectedTracker.Subscribe(ShowTracker));
         _subscriptions.Add(viewModel.FeatureStrength.Subscribe(text =>
         {
-            _featureText.Text = $"この場所の特徴: {text}";
+            _featureText.Text = string.Format(Strings.FeatureFormat, text);
             _featureText.IsVisible = text != null;
         }));
         _subscriptions.Add(viewModel.DisplayFrame.Subscribe(_ => UpdateFrameText()));
@@ -532,7 +533,7 @@ public sealed class MotionTrackingTabView : UserControl, IDisposable
     private void UpdateFrameText()
     {
         _frameText.Text = _viewModel is { Source.Value: not null, DisplayFrame.Value: { } frame } viewModel
-            ? $"フレーム {frame + 1} / {viewModel.FrameCount.Value}"
+            ? string.Format(Strings.FrameFormat, frame + 1, viewModel.FrameCount.Value)
             : "";
     }
 

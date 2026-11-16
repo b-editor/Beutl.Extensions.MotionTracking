@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Beutl.Extensibility;
+using Beutl.Extensions.MotionTracking.Properties;
 using FluentAvalonia.UI.Controls;
 using FluentIcons.Avalonia.Fluent;
 using FluentIcons.Common;
@@ -12,9 +13,9 @@ public sealed class MotionTrackingTabExtension : ToolTabExtension
 {
     public override string Name => "Motion tracking";
 
-    public override string DisplayName => "モーショントラッキング";
+    public override string DisplayName => Strings.MotionTracking;
 
-    public override string? Header => "モーショントラッキング";
+    public override string? Header => Strings.MotionTracking;
 
     public override bool CanMultiple => false;
 

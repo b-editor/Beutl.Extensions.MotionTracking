@@ -3,6 +3,7 @@ using Avalonia.Headless.NUnit;
 using Beutl.Animation;
 using Beutl.Composition;
 using Beutl.Extensions.MotionTracking.Editing;
+using Beutl.Extensions.MotionTracking.Properties;
 using Beutl.Extensions.MotionTracking.Tracking;
 using Beutl.Graphics;
 using Beutl.Graphics.Transformation;
@@ -12,6 +13,7 @@ using Beutl.ProjectSystem;
 namespace Beutl.Extensions.MotionTracking.Tests;
 
 // Runs the tab against scenes rendered by Beutl's own pipeline: what the trackers see is what a video element would give.
+[SetUICulture("ja-JP")]
 public class TrackingIntegrationTests
 {
     private const float CenterX = EditorFixture.Width / 2f;
@@ -187,7 +189,7 @@ public class TrackingIntegrationTests
         tab.Apply();
 
         var root = (TransformGroup)DrawableOf(target).Transform.Value!;
-        Assert.That(root.Children.Count(child => child.Name.Value == TrackingKeyframes.GroupName), Is.EqualTo(1));
+        Assert.That(root.Children.Count(child => child.Name.Value == Strings.MotionTracking), Is.EqualTo(1));
         Assert.That(MatrixAt(DrawableOf(target), 10).M31, Is.EqualTo(20).Within(0.3f), "The motion is not applied twice.");
     }
 

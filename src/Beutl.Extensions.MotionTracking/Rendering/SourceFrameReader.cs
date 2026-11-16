@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using Beutl.Composition;
 using Beutl.Extensions.MotionTracking.Editing;
+using Beutl.Extensions.MotionTracking.Properties;
 using Beutl.Extensions.MotionTracking.Tracking;
 using Beutl.Graphics;
 using Beutl.Graphics.Rendering;
@@ -116,7 +117,7 @@ internal sealed class SourceFrameReader : ITrackingFrameSource, IDisposable
         }
 
         if (!found)
-            throw new InvalidOperationException("The source element is not in the scene.");
+            throw new InvalidOperationException(Strings.SourceNotInScene);
 
         foreach (TimelineLayer layer in scene.Layers)
         {

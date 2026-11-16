@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="MotionTracking" xml:space="preserve">
+    <value>运动跟踪</value>
+  </data>
+  <data name="TrackRotationScale" xml:space="preserve">
+    <value>同时跟踪旋转和缩放</value>
+  </data>
+  <data name="UpdateTemplate" xml:space="preserve">
+    <value>自动更新模板</value>
+  </data>
+  <data name="FollowMotion" xml:space="preserve">
+    <value>跟随跟踪的运动</value>
+  </data>
+  <data name="StabilizeLock" xml:space="preserve">
+    <value>稳定画面（固定位置）</value>
+  </data>
+  <data name="StabilizeSmooth" xml:space="preserve">
+    <value>稳定画面（平滑运动）</value>
+  </data>
+  <data name="EveryFrame" xml:space="preserve">
+    <value>每帧</value>
+  </data>
+  <data name="StandardDensity" xml:space="preserve">
+    <value>标准</value>
+  </data>
+  <data name="SparseDensity" xml:space="preserve">
+    <value>较少</value>
+  </data>
+  <data name="LocateSource" xml:space="preserve">
+    <value>在时间线上选择源元素</value>
+  </data>
+  <data name="UseSelectionAsSource" xml:space="preserve">
+    <value>将所选元素用作源（清除跟踪结果）</value>
+  </data>
+  <data name="PlayheadOutsideSource" xml:space="preserve">
+    <value>播放头位于源元素范围之外</value>
+  </data>
+  <data name="GoToSourceStart" xml:space="preserve">
+    <value>跳转到源元素开头</value>
+  </data>
+  <data name="TrackedFramesHint" xml:space="preserve">
+    <value>各跟踪器已跟踪的帧。红色表示匹配置信度较低的帧。单击可跳转到该帧。</value>
+  </data>
+  <data name="ZoomOut" xml:space="preserve">
+    <value>缩小</value>
+  </data>
+  <data name="ZoomIn" xml:space="preserve">
+    <value>放大</value>
+  </data>
+  <data name="ResetZoom" xml:space="preserve">
+    <value>重置缩放</value>
+  </data>
+  <data name="UseSelectedElement" xml:space="preserve">
+    <value>使用所选元素</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>移除</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>应用</value>
+  </data>
+  <data name="RemoveAppliedHint" xml:space="preserve">
+    <value>移除已应用的关键帧</value>
+  </data>
+  <data name="PatternWidth" xml:space="preserve">
+    <value>图案宽度（px）</value>
+  </data>
+  <data name="PatternHeight" xml:space="preserve">
+    <value>图案高度（px）</value>
+  </data>
+  <data name="SearchWidth" xml:space="preserve">
+    <value>搜索宽度（px）</value>
+  </data>
+  <data name="SearchHeight" xml:space="preserve">
+    <value>搜索高度（px）</value>
+  </data>
+  <data name="StopConfidence" xml:space="preserve">
+    <value>停止置信度（%）</value>
+  </data>
+  <data name="StopConfidenceHint" xml:space="preserve">
+    <value>图案匹配置信度低于此值时停止该跟踪器</value>
+  </data>
+  <data name="PositionOnlyHint" xml:space="preserve">
+    <value>关闭后仅跟踪位置</value>
+  </data>
+  <data name="FixedTemplateHint" xml:space="preserve">
+    <value>关闭后始终与开始跟踪时的外观比较</value>
+  </data>
+  <data name="ClearResults" xml:space="preserve">
+    <value>清除结果</value>
+  </data>
+  <data name="ClearBefore" xml:space="preserve">
+    <value>清除播放头之前的结果</value>
+  </data>
+  <data name="ClearAfter" xml:space="preserve">
+    <value>清除播放头之后的结果</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>高级设置</value>
+  </data>
+  <data name="UseTrackerHint" xml:space="preserve">
+    <value>用于跟踪和应用运动</value>
+  </data>
+  <data name="SampleCountFormat" xml:space="preserve">
+    <value>{0} 帧</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="LocateTarget" xml:space="preserve">
+    <value>在时间线上选择目标元素</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>目标</value>
+  </data>
+  <data name="AddTrackerHint" xml:space="preserve">
+    <value>添加跟踪器（也可双击画面）</value>
+  </data>
+  <data name="RemoveTrackerHint" xml:space="preserve">
+    <value>删除所选跟踪器（Delete）</value>
+  </data>
+  <data name="Trackers" xml:space="preserve">
+    <value>跟踪器</value>
+  </data>
+  <data name="TrackToStart" xml:space="preserve">
+    <value>跟踪至开头</value>
+  </data>
+  <data name="TrackToEnd" xml:space="preserve">
+    <value>跟踪至结尾</value>
+  </data>
+  <data name="OneFrame" xml:space="preserve">
+    <value>1 帧</value>
+  </data>
+  <data name="TrackPreviousFrame" xml:space="preserve">
+    <value>向后跟踪一帧</value>
+  </data>
+  <data name="TrackNextFrame" xml:space="preserve">
+    <value>向前跟踪一帧</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="Tracking" xml:space="preserve">
+    <value>跟踪</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>位置</value>
+  </data>
+  <data name="Rotation" xml:space="preserve">
+    <value>旋转</value>
+  </data>
+  <data name="Scale" xml:space="preserve">
+    <value>缩放</value>
+  </data>
+  <data name="SmoothingFrames" xml:space="preserve">
+    <value>平滑（帧）</value>
+  </data>
+  <data name="Keyframes" xml:space="preserve">
+    <value>关键帧</value>
+  </data>
+  <data name="DensityHint" xml:space="preserve">
+    <value>“标准”将误差保持在 0.1px 以内，“较少”将误差保持在 0.5px 以内。</value>
+  </data>
+  <data name="LockHint" xml:space="preserve">
+    <value>反向移动源元素以固定跟踪点</value>
+  </data>
+  <data name="SmoothHint" xml:space="preserve">
+    <value>仅消除源元素运动中的细微抖动</value>
+  </data>
+  <data name="FollowHint" xml:space="preserve">
+    <value>使目标元素跟随跟踪的运动</value>
+  </data>
+  <data name="FeatureFormat" xml:space="preserve">
+    <value>此处特征质量：{0}</value>
+    <comment>{0}: localized feature quality description.</comment>
+  </data>
+  <data name="FrameFormat" xml:space="preserve">
+    <value>帧 {0} / {1}</value>
+    <comment>{0}: current frame, one-based; {1}: total frame count.</comment>
+  </data>
+  <data name="SelectSourceMessage" xml:space="preserve">
+    <value>请在时间线上选择要跟踪的视频。</value>
+  </data>
+  <data name="SourceRemovedMessage" xml:space="preserve">
+    <value>源元素已被删除。</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>（未设置）</value>
+  </data>
+  <data name="Deleted" xml:space="preserve">
+    <value>（已删除）</value>
+  </data>
+  <data name="SelectPictureMessage" xml:space="preserve">
+    <value>请在时间线上选择视频或图像元素</value>
+  </data>
+  <data name="SelectTargetMessage" xml:space="preserve">
+    <value>请在时间线上选择要添加动画的元素</value>
+  </data>
+  <data name="TrackerNameFormat" xml:space="preserve">
+    <value>跟踪器 {0}</value>
+    <comment>{0}: tracker number.</comment>
+  </data>
+  <data name="FeatureWeak" xml:space="preserve">
+    <value>弱（纹理较少的区域或直线上可能跟踪不稳）</value>
+  </data>
+  <data name="FeatureNormal" xml:space="preserve">
+    <value>一般</value>
+  </data>
+  <data name="FeatureGood" xml:space="preserve">
+    <value>良好</value>
+  </data>
+  <data name="NoActiveTrackersMessage" xml:space="preserve">
+    <value>没有启用的跟踪器。请添加跟踪器或在列表中启用。</value>
+  </data>
+  <data name="AtLastFrameMessage" xml:space="preserve">
+    <value>当前已是源元素的最后一帧</value>
+  </data>
+  <data name="AtFirstFrameMessage" xml:space="preserve">
+    <value>当前已是源元素的第一帧</value>
+  </data>
+  <data name="TrackingInProgress" xml:space="preserve">
+    <value>正在跟踪…</value>
+  </data>
+  <data name="WeakTrackersWarningFormat" xml:space="preserve">
+    <value>{0} 起始位置的纹理较少，结果可能已偏移</value>
+    <comment>{0}: list of tracker names.</comment>
+  </data>
+  <data name="TrackerListSeparator" xml:space="preserve">
+    <value>、</value>
+  </data>
+  <data name="OutcomeWithDetailsFormat" xml:space="preserve">
+    <value>{0}。{1}</value>
+    <comment>{0}: tracking summary; {1}: stop reasons or warning.</comment>
+  </data>
+  <data name="StoppedTrackingFormat" xml:space="preserve">
+    <value>已停止。已保留跟踪到的 {0} 帧</value>
+    <comment>{0}: number of tracked frames kept.</comment>
+  </data>
+  <data name="TrackingFailedFormat" xml:space="preserve">
+    <value>跟踪失败：{0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="TrackerLostFormat" xml:space="preserve">
+    <value>{0} 已丢失（置信度低）</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackerOutOfFrameFormat" xml:space="preserve">
+    <value>{0} 已离开画面</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackedFramesFormat" xml:space="preserve">
+    <value>已跟踪 {0} 帧</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="SetTargetMessage" xml:space="preserve">
+    <value>请设置目标元素</value>
+  </data>
+  <data name="SetSourceMessage" xml:space="preserve">
+    <value>请设置源元素</value>
+  </data>
+  <data name="TargetLockedMessage" xml:space="preserve">
+    <value>目标元素已锁定</value>
+  </data>
+  <data name="SameTargetMessage" xml:space="preserve">
+    <value>目标与源为同一元素。请选择其他目标或选择稳定画面模式。</value>
+  </data>
+  <data name="NoTrackedSamplesMessage" xml:space="preserve">
+    <value>尚无跟踪数据。请先执行跟踪。</value>
+  </data>
+  <data name="SelectMotionChannelsMessage" xml:space="preserve">
+    <value>请启用位置、旋转或缩放</value>
+  </data>
+  <data name="NoCommonFramesMessage" xml:space="preserve">
+    <value>跟踪器没有共同帧，或位置过于接近</value>
+  </data>
+  <data name="NoTrackingResultsMessage" xml:space="preserve">
+    <value>没有跟踪结果</value>
+  </data>
+  <data name="NoOverlappingTimeMessage" xml:space="preserve">
+    <value>目标元素与跟踪结果的时间范围不重叠</value>
+  </data>
+  <data name="ApplyHistory" xml:space="preserve">
+    <value>应用运动跟踪</value>
+  </data>
+  <data name="AppliedFollowFormat" xml:space="preserve">
+    <value>已向“{0}”写入 {1} 个关键帧。播放头处（第 {2} 帧）保持当前位置。</value>
+    <comment>{0}: element name; {1}: keyframe count; {2}: reference frame, one-based.</comment>
+  </data>
+  <data name="AppliedFormat" xml:space="preserve">
+    <value>已向“{0}”写入 {1} 个关键帧</value>
+    <comment>{0}: element name; {1}: keyframe count.</comment>
+  </data>
+  <data name="RemoveHistory" xml:space="preserve">
+    <value>移除运动跟踪</value>
+  </data>
+  <data name="RemovedKeyframesFormat" xml:space="preserve">
+    <value>已移除“{0}”的跟踪关键帧</value>
+    <comment>{0}: element name.</comment>
+  </data>
+  <data name="NoAppliedKeyframesMessage" xml:space="preserve">
+    <value>没有可移除的跟踪关键帧</value>
+  </data>
+  <data name="RenderFailedFormat" xml:space="preserve">
+    <value>无法渲染帧：{0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="SourceNotInScene" xml:space="preserve">
+    <value>源元素不在场景中。</value>
+  </data>
+</root>

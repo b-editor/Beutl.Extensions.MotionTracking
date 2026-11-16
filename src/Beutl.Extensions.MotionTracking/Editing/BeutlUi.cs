@@ -61,13 +61,25 @@ internal static class BeutlUi
         return button;
     }
 
-    private static StackPanel IconAndLabel(Icon icon, string label, bool iconAfterLabel)
+    private static Grid IconAndLabel(Icon icon, string label, bool iconAfterLabel)
     {
         var glyph = new FluentIcon { Icon = icon, FontSize = 16, VerticalAlignment = VerticalAlignment.Center };
-        var labelText = new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center };
-        var content = new StackPanel { Orientation = Orientation.Horizontal, Spacing = LabelSpacing };
-        content.Children.Add(iconAfterLabel ? labelText : glyph);
-        content.Children.Add(iconAfterLabel ? glyph : labelText);
+        var labelText = new TextBlock
+        {
+            Text = label,
+            VerticalAlignment = VerticalAlignment.Center,
+            TextWrapping = TextWrapping.Wrap,
+            TextAlignment = TextAlignment.Center,
+        };
+        // A horizontal StackPanel measures labels without a width limit, clipping longer translations.
+        var content = new Grid
+        {
+            ColumnDefinitions = new ColumnDefinitions(iconAfterLabel ? "*,Auto" : "Auto,*"),
+            ColumnSpacing = LabelSpacing,
+            Children = { glyph, labelText },
+        };
+        Grid.SetColumn(glyph, iconAfterLabel ? 1 : 0);
+        Grid.SetColumn(labelText, iconAfterLabel ? 0 : 1);
         return content;
     }
 

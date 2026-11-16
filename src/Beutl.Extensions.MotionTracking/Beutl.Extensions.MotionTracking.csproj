@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <PackageId>Beutl.Extensions.MotionTracking</PackageId>
-        <Title>モーショントラッキング</Title>
-        <Description>動画の中の点を追跡し、その動きをキーフレームとしてオブジェクトに適用します。手ブレの補正（スタビライズ）もできます</Description>
+        <Title>Motion tracking</Title>
+        <Description>Track points in a video and apply their motion to objects as keyframes, or stabilize shaky footage.</Description>
         <PackageTags>motion,tracking,tracker,stabilize,モーショントラッキング,トラッキング,追跡,スタビライズ,手ブレ補正</PackageTags>
         <Version>0.1.0</Version>
         <AssemblyVersion>0.1.0.0</AssemblyVersion>
@@ -11,10 +11,20 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
         <BeutlAutoReferenceSourceGenerators>false</BeutlAutoReferenceSourceGenerators>
+        <NeutralLanguage>en</NeutralLanguage>
     </PropertyGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="Beutl.Extensions.MotionTracking.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Properties/Strings.resx">
+            <StronglyTypedLanguage>C#</StronglyTypedLanguage>
+            <StronglyTypedNamespace>Beutl.Extensions.MotionTracking.Properties</StronglyTypedNamespace>
+            <StronglyTypedClassName>Strings</StronglyTypedClassName>
+            <StronglyTypedFileName>$(IntermediateOutputPath)Strings.g.cs</StronglyTypedFileName>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
