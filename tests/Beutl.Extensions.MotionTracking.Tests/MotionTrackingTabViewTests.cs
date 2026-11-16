@@ -9,12 +9,15 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Beutl.Extensions.MotionTracking.Editing;
+using Beutl.Extensions.MotionTracking.Properties;
 using Beutl.Extensions.MotionTracking.Tracking;
 using Beutl.ProjectSystem;
 
 namespace Beutl.Extensions.MotionTracking.Tests;
 
 // Drives the tool tab's view in a headless Avalonia session.
+[SetUICulture("ja-JP")]
+[SetCulture("en-US")]
 public class MotionTrackingTabViewTests
 {
     private const float CenterX = EditorFixture.Width / 2f;
@@ -112,6 +115,83 @@ public class MotionTrackingTabViewTests
 
         Assert.That(tab.Source.Value, Is.SameAs(source));
         Assert.That(Find<TrackerCanvas>(view), Is.Not.Empty);
+    }
+
+    [AvaloniaTest]
+    public async Task ShowsTranslatedControlsAndTrackingMessagesInEveryEditorLanguage()
+    {
+        HeadlessScene.EnsureAvailable();
+        foreach ((string language, string title) in new[]
+                 {
+                     ("en-US", "Motion tracking"), ("ja-JP", "モーショントラッキング"),
+                     ("zh-CN", "运动跟踪"), ("ko-KR", "모션 트래킹"), ("es", "Seguimiento de movimiento"),
+                 })
+        {
+            using var culture = new CultureScope(language);
+            using var f = new EditorFixture();
+            var tab = f.OpenTab();
+            (Window window, MotionTrackingTabView view) = Show(tab, 1280, 1200);
+            try
+            {
+                Assert.That(tab.Header.Value, Is.EqualTo(title));
+                Assert.That(Find<TextBlock>(view).Select(t => t.Text), Has.Member(Strings.SelectSourceMessage));
+                Button selectSource = ButtonNamed(view, Strings.UseSelectedElement);
+                Click(selectSource);
+                Assert.That(tab.Status.Value, Is.EqualTo(Strings.SelectPictureMessage));
+
+                Element source = f.AddMovingPicture(1, 0, 2);
+                f.Selection.Select(source);
+                Click(selectSource);
+                Assert.That(tab.Trackers.Single().Name.Value, Is.EqualTo(string.Format(Strings.TrackerNameFormat, 1)));
+                await WaitForFrame(tab);
+                tab.SetTarget(f.AddMarker(EditorFixture.Frame(3)));
+
+                // The editable name is project data and must not be translated.
+                const string name = "My point / 左の角";
+                tab.Trackers[0].Name.Value = name;
+                await tab.TrackAsync(1);
+                Assert.That(tab.Status.Value, Does.StartWith(string.Format(Strings.TrackedFramesFormat, 2)));
+                Assert.That(Find<TextBlock>(view).Select(t => t.Text), Has.Member(string.Format(Strings.SampleCountFormat, 3)));
+                Assert.That(Find<TextBlock>(view).Select(t => t.Text), Has.Member(name));
+                Assert.That(ToolTip.GetTip(ButtonNamed(view, Strings.ZoomIn)), Is.EqualTo(Strings.ZoomIn));
+
+                tab.Apply();
+                Assert.That(tab.Status.Value, Does.Contain(string.Format(Strings.AppliedFormat, tab.TargetName.Value, 4)));
+                tab.RemoveApplied();
+                Assert.That(tab.Status.Value, Is.EqualTo(string.Format(Strings.RemovedKeyframesFormat, tab.TargetName.Value)));
+
+                Find<Expander>(view).Single().IsExpanded = true;
+                // Let the expander's layout animation finish before capturing all of its translated settings.
+                for (int i = 0; i < 25; i++)
+                {
+                    await Task.Delay(16);
+                    Settle();
+                }
+                AssertTrackingLabelsFit();
+                Render(window, $"localized-{language}-wide.png");
+                window.Width = 560;
+                Settle();
+                AssertTrackingLabelsFit();
+                Render(window, $"localized-{language}-narrow.png");
+
+                void AssertTrackingLabelsFit()
+                {
+                    foreach (string label in new[] { Strings.TrackToStart, Strings.TrackToEnd, Strings.TrackPreviousFrame, Strings.TrackNextFrame })
+                    {
+                        Button button = ButtonNamed(view, label);
+                        TextBlock text = Find<TextBlock>(button).Single();
+                        Point end = text.TranslatePoint(new Point(text.Bounds.Width, text.Bounds.Height), button)!.Value;
+                        Assert.That(end.X, Is.LessThanOrEqualTo(button.Bounds.Width), $"{language}: {label}");
+                        Assert.That(end.Y, Is.LessThanOrEqualTo(button.Bounds.Height), $"{language}: {label}");
+                    }
+                }
+            }
+            finally
+            {
+                window.Close();
+                view.Dispose();
+            }
+        }
     }
 
     [AvaloniaTest]

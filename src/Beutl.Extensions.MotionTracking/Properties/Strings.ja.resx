@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="MotionTracking" xml:space="preserve">
+    <value>モーショントラッキング</value>
+  </data>
+  <data name="TrackRotationScale" xml:space="preserve">
+    <value>回転と拡大縮小も追跡する</value>
+  </data>
+  <data name="UpdateTemplate" xml:space="preserve">
+    <value>見本を自動で更新する</value>
+  </data>
+  <data name="FollowMotion" xml:space="preserve">
+    <value>オブジェクトを動きに合わせる</value>
+  </data>
+  <data name="StabilizeLock" xml:space="preserve">
+    <value>手ブレを補正（固定する）</value>
+  </data>
+  <data name="StabilizeSmooth" xml:space="preserve">
+    <value>手ブレを補正（滑らかにする）</value>
+  </data>
+  <data name="EveryFrame" xml:space="preserve">
+    <value>毎フレーム</value>
+  </data>
+  <data name="StandardDensity" xml:space="preserve">
+    <value>標準</value>
+  </data>
+  <data name="SparseDensity" xml:space="preserve">
+    <value>少なめ</value>
+  </data>
+  <data name="LocateSource" xml:space="preserve">
+    <value>追跡元をタイムラインで選択</value>
+  </data>
+  <data name="UseSelectionAsSource" xml:space="preserve">
+    <value>選択中の要素を追跡元にする（追跡結果は消えます）</value>
+  </data>
+  <data name="PlayheadOutsideSource" xml:space="preserve">
+    <value>再生ヘッドが追跡元の範囲の外にあります</value>
+  </data>
+  <data name="GoToSourceStart" xml:space="preserve">
+    <value>追跡元の先頭へ移動</value>
+  </data>
+  <data name="TrackedFramesHint" xml:space="preserve">
+    <value>トラッカーごとの追跡済みのフレームです。赤い所は一致度が低いフレームです。押すとそのフレームへ移動します</value>
+  </data>
+  <data name="ZoomOut" xml:space="preserve">
+    <value>縮小</value>
+  </data>
+  <data name="ZoomIn" xml:space="preserve">
+    <value>拡大</value>
+  </data>
+  <data name="ResetZoom" xml:space="preserve">
+    <value>拡大率をリセット</value>
+  </data>
+  <data name="UseSelectedElement" xml:space="preserve">
+    <value>選択中の要素を使う</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>解除</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>適用</value>
+  </data>
+  <data name="RemoveAppliedHint" xml:space="preserve">
+    <value>適用したキーフレームを取り除きます</value>
+  </data>
+  <data name="PatternWidth" xml:space="preserve">
+    <value>パターン幅（px）</value>
+  </data>
+  <data name="PatternHeight" xml:space="preserve">
+    <value>パターン高さ（px）</value>
+  </data>
+  <data name="SearchWidth" xml:space="preserve">
+    <value>検索の幅（px）</value>
+  </data>
+  <data name="SearchHeight" xml:space="preserve">
+    <value>検索の高さ（px）</value>
+  </data>
+  <data name="StopConfidence" xml:space="preserve">
+    <value>止める信頼度（%）</value>
+  </data>
+  <data name="StopConfidenceHint" xml:space="preserve">
+    <value>パターンとの一致度がこれを下回ると、そのトラッカーは止まります</value>
+  </data>
+  <data name="PositionOnlyHint" xml:space="preserve">
+    <value>オフにすると位置だけを追跡します</value>
+  </data>
+  <data name="FixedTemplateHint" xml:space="preserve">
+    <value>オフにすると、追跡を始めたときの見た目と比べ続けます</value>
+  </data>
+  <data name="ClearResults" xml:space="preserve">
+    <value>結果を消す</value>
+  </data>
+  <data name="ClearBefore" xml:space="preserve">
+    <value>ここより前を消す</value>
+  </data>
+  <data name="ClearAfter" xml:space="preserve">
+    <value>ここより後を消す</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>詳細設定</value>
+  </data>
+  <data name="UseTrackerHint" xml:space="preserve">
+    <value>追跡と適用に使う</value>
+  </data>
+  <data name="SampleCountFormat" xml:space="preserve">
+    <value>{0} フレーム</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="LocateTarget" xml:space="preserve">
+    <value>適用先の要素をタイムラインで選択</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>適用先</value>
+  </data>
+  <data name="AddTrackerHint" xml:space="preserve">
+    <value>トラッカーを追加（フレームをダブルクリックでも追加できます）</value>
+  </data>
+  <data name="RemoveTrackerHint" xml:space="preserve">
+    <value>選択中のトラッカーを削除 (Delete)</value>
+  </data>
+  <data name="Trackers" xml:space="preserve">
+    <value>トラッカー</value>
+  </data>
+  <data name="TrackToStart" xml:space="preserve">
+    <value>最初まで追跡</value>
+  </data>
+  <data name="TrackToEnd" xml:space="preserve">
+    <value>最後まで追跡</value>
+  </data>
+  <data name="OneFrame" xml:space="preserve">
+    <value>1 フレーム</value>
+  </data>
+  <data name="TrackPreviousFrame" xml:space="preserve">
+    <value>1 フレーム戻って追跡</value>
+  </data>
+  <data name="TrackNextFrame" xml:space="preserve">
+    <value>1 フレーム進んで追跡</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="Tracking" xml:space="preserve">
+    <value>追跡</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>位置</value>
+  </data>
+  <data name="Rotation" xml:space="preserve">
+    <value>回転</value>
+  </data>
+  <data name="Scale" xml:space="preserve">
+    <value>拡大縮小</value>
+  </data>
+  <data name="SmoothingFrames" xml:space="preserve">
+    <value>滑らかさ（フレーム）</value>
+  </data>
+  <data name="Keyframes" xml:space="preserve">
+    <value>キーフレーム</value>
+  </data>
+  <data name="DensityHint" xml:space="preserve">
+    <value>「標準」は誤差 0.1px、「少なめ」は誤差 0.5px までに収まるように間引きます</value>
+  </data>
+  <data name="LockHint" xml:space="preserve">
+    <value>追跡元を逆向きに動かして、追跡した点を固定します</value>
+  </data>
+  <data name="SmoothHint" xml:space="preserve">
+    <value>追跡元の細かい揺れだけを取り除きます</value>
+  </data>
+  <data name="FollowHint" xml:space="preserve">
+    <value>適用先の要素が、追跡した動きについて行きます</value>
+  </data>
+  <data name="FeatureFormat" xml:space="preserve">
+    <value>この場所の特徴: {0}</value>
+    <comment>{0}: localized feature quality description.</comment>
+  </data>
+  <data name="FrameFormat" xml:space="preserve">
+    <value>フレーム {0} / {1}</value>
+    <comment>{0}: current frame, one-based; {1}: total frame count.</comment>
+  </data>
+  <data name="SelectSourceMessage" xml:space="preserve">
+    <value>追跡する動画をタイムラインで選択してください。</value>
+  </data>
+  <data name="SourceRemovedMessage" xml:space="preserve">
+    <value>追跡元の要素が削除されました。</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>（未設定）</value>
+  </data>
+  <data name="Deleted" xml:space="preserve">
+    <value>（削除されました）</value>
+  </data>
+  <data name="SelectPictureMessage" xml:space="preserve">
+    <value>タイムラインで動画や画像の要素を選択してください</value>
+  </data>
+  <data name="SelectTargetMessage" xml:space="preserve">
+    <value>タイムラインで動きを付けたい要素を選択してください</value>
+  </data>
+  <data name="TrackerNameFormat" xml:space="preserve">
+    <value>トラッカー {0}</value>
+    <comment>{0}: tracker number.</comment>
+  </data>
+  <data name="FeatureWeak" xml:space="preserve">
+    <value>弱い（模様の少ない場所や直線の上では、追跡が不安定になります）</value>
+  </data>
+  <data name="FeatureNormal" xml:space="preserve">
+    <value>普通</value>
+  </data>
+  <data name="FeatureGood" xml:space="preserve">
+    <value>良い</value>
+  </data>
+  <data name="NoActiveTrackersMessage" xml:space="preserve">
+    <value>追跡するトラッカーがありません。トラッカーを追加するか、一覧でオンにしてください</value>
+  </data>
+  <data name="AtLastFrameMessage" xml:space="preserve">
+    <value>ここが追跡元の最後のフレームです</value>
+  </data>
+  <data name="AtFirstFrameMessage" xml:space="preserve">
+    <value>ここが追跡元の最初のフレームです</value>
+  </data>
+  <data name="TrackingInProgress" xml:space="preserve">
+    <value>追跡しています…</value>
+  </data>
+  <data name="WeakTrackersWarningFormat" xml:space="preserve">
+    <value>{0}は模様の少ない場所にあったので、結果がずれているかもしれません</value>
+    <comment>{0}: list of tracker names.</comment>
+  </data>
+  <data name="TrackerListSeparator" xml:space="preserve">
+    <value>、</value>
+  </data>
+  <data name="OutcomeWithDetailsFormat" xml:space="preserve">
+    <value>{0}。{1}</value>
+    <comment>{0}: tracking summary; {1}: stop reasons or warning.</comment>
+  </data>
+  <data name="StoppedTrackingFormat" xml:space="preserve">
+    <value>停止しました。ここまでの {0} フレームは残っています</value>
+    <comment>{0}: number of tracked frames kept.</comment>
+  </data>
+  <data name="TrackingFailedFormat" xml:space="preserve">
+    <value>追跡できませんでした: {0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="TrackerLostFormat" xml:space="preserve">
+    <value>{0}は見失いました（信頼度の低下）</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackerOutOfFrameFormat" xml:space="preserve">
+    <value>{0}は画面の外に出ました</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackedFramesFormat" xml:space="preserve">
+    <value>{0} フレーム追跡しました</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="SetTargetMessage" xml:space="preserve">
+    <value>適用先の要素を設定してください</value>
+  </data>
+  <data name="SetSourceMessage" xml:space="preserve">
+    <value>追跡元の要素を設定してください</value>
+  </data>
+  <data name="TargetLockedMessage" xml:space="preserve">
+    <value>適用先の要素はロックされています</value>
+  </data>
+  <data name="SameTargetMessage" xml:space="preserve">
+    <value>適用先が追跡元と同じ要素です。別の要素を設定するか、手ブレの補正を選んでください</value>
+  </data>
+  <data name="NoTrackedSamplesMessage" xml:space="preserve">
+    <value>まだ追跡していません。先にトラッカーを追跡してください</value>
+  </data>
+  <data name="SelectMotionChannelsMessage" xml:space="preserve">
+    <value>位置・回転・拡大縮小のどれかをオンにしてください</value>
+  </data>
+  <data name="NoCommonFramesMessage" xml:space="preserve">
+    <value>トラッカー同士に共通のフレームがないか、位置が近すぎます</value>
+  </data>
+  <data name="NoTrackingResultsMessage" xml:space="preserve">
+    <value>追跡結果がありません</value>
+  </data>
+  <data name="NoOverlappingTimeMessage" xml:space="preserve">
+    <value>適用先の要素と追跡結果の時間が重なっていません</value>
+  </data>
+  <data name="ApplyHistory" xml:space="preserve">
+    <value>モーショントラッキングを適用</value>
+  </data>
+  <data name="AppliedFollowFormat" xml:space="preserve">
+    <value>「{0}」に {1} 個のキーフレームを書き込みました。再生ヘッドの位置（フレーム {2}）で今の配置のままになります</value>
+    <comment>{0}: element name; {1}: keyframe count; {2}: reference frame, one-based.</comment>
+  </data>
+  <data name="AppliedFormat" xml:space="preserve">
+    <value>「{0}」に {1} 個のキーフレームを書き込みました</value>
+    <comment>{0}: element name; {1}: keyframe count.</comment>
+  </data>
+  <data name="RemoveHistory" xml:space="preserve">
+    <value>モーショントラッキングを解除</value>
+  </data>
+  <data name="RemovedKeyframesFormat" xml:space="preserve">
+    <value>「{0}」のトラッキングのキーフレームを削除しました</value>
+    <comment>{0}: element name.</comment>
+  </data>
+  <data name="NoAppliedKeyframesMessage" xml:space="preserve">
+    <value>このトラッキングのキーフレームはまだありません</value>
+  </data>
+  <data name="RenderFailedFormat" xml:space="preserve">
+    <value>フレームを描画できませんでした: {0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="SourceNotInScene" xml:space="preserve">
+    <value>追跡元の要素がシーンにありません。</value>
+  </data>
+</root>

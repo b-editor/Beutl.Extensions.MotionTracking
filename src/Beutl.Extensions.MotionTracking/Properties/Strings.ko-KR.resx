@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="MotionTracking" xml:space="preserve">
+    <value>모션 트래킹</value>
+  </data>
+  <data name="TrackRotationScale" xml:space="preserve">
+    <value>회전과 크기도 추적</value>
+  </data>
+  <data name="UpdateTemplate" xml:space="preserve">
+    <value>템플릿 자동 업데이트</value>
+  </data>
+  <data name="FollowMotion" xml:space="preserve">
+    <value>추적한 움직임 따라가기</value>
+  </data>
+  <data name="StabilizeLock" xml:space="preserve">
+    <value>흔들림 보정 (위치 고정)</value>
+  </data>
+  <data name="StabilizeSmooth" xml:space="preserve">
+    <value>흔들림 보정 (움직임 부드럽게)</value>
+  </data>
+  <data name="EveryFrame" xml:space="preserve">
+    <value>모든 프레임</value>
+  </data>
+  <data name="StandardDensity" xml:space="preserve">
+    <value>표준</value>
+  </data>
+  <data name="SparseDensity" xml:space="preserve">
+    <value>적게</value>
+  </data>
+  <data name="LocateSource" xml:space="preserve">
+    <value>타임라인에서 추적 원본 선택</value>
+  </data>
+  <data name="UseSelectionAsSource" xml:space="preserve">
+    <value>선택한 요소를 추적 원본으로 사용 (추적 결과 삭제)</value>
+  </data>
+  <data name="PlayheadOutsideSource" xml:space="preserve">
+    <value>재생 헤드가 추적 원본 범위 밖에 있습니다</value>
+  </data>
+  <data name="GoToSourceStart" xml:space="preserve">
+    <value>추적 원본 시작으로 이동</value>
+  </data>
+  <data name="TrackedFramesHint" xml:space="preserve">
+    <value>트래커별 추적된 프레임입니다. 빨간색은 일치 신뢰도가 낮은 프레임입니다. 클릭하면 해당 프레임으로 이동합니다.</value>
+  </data>
+  <data name="ZoomOut" xml:space="preserve">
+    <value>축소</value>
+  </data>
+  <data name="ZoomIn" xml:space="preserve">
+    <value>확대</value>
+  </data>
+  <data name="ResetZoom" xml:space="preserve">
+    <value>확대/축소 초기화</value>
+  </data>
+  <data name="UseSelectedElement" xml:space="preserve">
+    <value>선택한 요소 사용</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>해제</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>적용</value>
+  </data>
+  <data name="RemoveAppliedHint" xml:space="preserve">
+    <value>적용한 키프레임 제거</value>
+  </data>
+  <data name="PatternWidth" xml:space="preserve">
+    <value>패턴 너비 (px)</value>
+  </data>
+  <data name="PatternHeight" xml:space="preserve">
+    <value>패턴 높이 (px)</value>
+  </data>
+  <data name="SearchWidth" xml:space="preserve">
+    <value>검색 너비 (px)</value>
+  </data>
+  <data name="SearchHeight" xml:space="preserve">
+    <value>검색 높이 (px)</value>
+  </data>
+  <data name="StopConfidence" xml:space="preserve">
+    <value>정지 신뢰도 (%)</value>
+  </data>
+  <data name="StopConfidenceHint" xml:space="preserve">
+    <value>패턴 일치 신뢰도가 이 값보다 낮으면 해당 트래커가 멈춥니다</value>
+  </data>
+  <data name="PositionOnlyHint" xml:space="preserve">
+    <value>끄면 위치만 추적합니다</value>
+  </data>
+  <data name="FixedTemplateHint" xml:space="preserve">
+    <value>끄면 추적을 시작했을 때의 모습과 계속 비교합니다</value>
+  </data>
+  <data name="ClearResults" xml:space="preserve">
+    <value>결과 지우기</value>
+  </data>
+  <data name="ClearBefore" xml:space="preserve">
+    <value>재생 헤드 이전 지우기</value>
+  </data>
+  <data name="ClearAfter" xml:space="preserve">
+    <value>재생 헤드 이후 지우기</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>고급 설정</value>
+  </data>
+  <data name="UseTrackerHint" xml:space="preserve">
+    <value>추적 및 움직임 적용에 사용</value>
+  </data>
+  <data name="SampleCountFormat" xml:space="preserve">
+    <value>{0} 프레임</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="LocateTarget" xml:space="preserve">
+    <value>타임라인에서 적용 대상 선택</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>적용 대상</value>
+  </data>
+  <data name="AddTrackerHint" xml:space="preserve">
+    <value>트래커 추가 (프레임을 두 번 클릭해도 추가 가능)</value>
+  </data>
+  <data name="RemoveTrackerHint" xml:space="preserve">
+    <value>선택한 트래커 삭제 (Delete)</value>
+  </data>
+  <data name="Trackers" xml:space="preserve">
+    <value>트래커</value>
+  </data>
+  <data name="TrackToStart" xml:space="preserve">
+    <value>처음까지 추적</value>
+  </data>
+  <data name="TrackToEnd" xml:space="preserve">
+    <value>끝까지 추적</value>
+  </data>
+  <data name="OneFrame" xml:space="preserve">
+    <value>1 프레임</value>
+  </data>
+  <data name="TrackPreviousFrame" xml:space="preserve">
+    <value>이전 1 프레임 추적</value>
+  </data>
+  <data name="TrackNextFrame" xml:space="preserve">
+    <value>다음 1 프레임 추적</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>정지</value>
+  </data>
+  <data name="Tracking" xml:space="preserve">
+    <value>추적</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>위치</value>
+  </data>
+  <data name="Rotation" xml:space="preserve">
+    <value>회전</value>
+  </data>
+  <data name="Scale" xml:space="preserve">
+    <value>크기</value>
+  </data>
+  <data name="SmoothingFrames" xml:space="preserve">
+    <value>부드럽게 (프레임)</value>
+  </data>
+  <data name="Keyframes" xml:space="preserve">
+    <value>키프레임</value>
+  </data>
+  <data name="DensityHint" xml:space="preserve">
+    <value>표준은 오차를 0.1px 이내로, 적게는 0.5px 이내로 유지하도록 키프레임을 줄입니다</value>
+  </data>
+  <data name="LockHint" xml:space="preserve">
+    <value>추적 원본을 반대 방향으로 움직여 추적한 점을 고정합니다</value>
+  </data>
+  <data name="SmoothHint" xml:space="preserve">
+    <value>추적 원본의 미세한 흔들림만 제거합니다</value>
+  </data>
+  <data name="FollowHint" xml:space="preserve">
+    <value>적용 대상이 추적한 움직임을 따라갑니다</value>
+  </data>
+  <data name="FeatureFormat" xml:space="preserve">
+    <value>이 위치의 특징: {0}</value>
+    <comment>{0}: localized feature quality description.</comment>
+  </data>
+  <data name="FrameFormat" xml:space="preserve">
+    <value>프레임 {0} / {1}</value>
+    <comment>{0}: current frame, one-based; {1}: total frame count.</comment>
+  </data>
+  <data name="SelectSourceMessage" xml:space="preserve">
+    <value>타임라인에서 추적할 동영상을 선택하세요.</value>
+  </data>
+  <data name="SourceRemovedMessage" xml:space="preserve">
+    <value>추적 원본 요소가 삭제되었습니다.</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>(설정되지 않음)</value>
+  </data>
+  <data name="Deleted" xml:space="preserve">
+    <value>(삭제됨)</value>
+  </data>
+  <data name="SelectPictureMessage" xml:space="preserve">
+    <value>타임라인에서 동영상이나 이미지 요소를 선택하세요</value>
+  </data>
+  <data name="SelectTargetMessage" xml:space="preserve">
+    <value>타임라인에서 움직임을 적용할 요소를 선택하세요</value>
+  </data>
+  <data name="TrackerNameFormat" xml:space="preserve">
+    <value>트래커 {0}</value>
+    <comment>{0}: tracker number.</comment>
+  </data>
+  <data name="FeatureWeak" xml:space="preserve">
+    <value>약함 (무늬가 적은 곳이나 직선 위에서는 추적이 불안정할 수 있습니다)</value>
+  </data>
+  <data name="FeatureNormal" xml:space="preserve">
+    <value>보통</value>
+  </data>
+  <data name="FeatureGood" xml:space="preserve">
+    <value>좋음</value>
+  </data>
+  <data name="NoActiveTrackersMessage" xml:space="preserve">
+    <value>활성 트래커가 없습니다. 트래커를 추가하거나 목록에서 켜세요</value>
+  </data>
+  <data name="AtLastFrameMessage" xml:space="preserve">
+    <value>추적 원본의 마지막 프레임입니다</value>
+  </data>
+  <data name="AtFirstFrameMessage" xml:space="preserve">
+    <value>추적 원본의 첫 프레임입니다</value>
+  </data>
+  <data name="TrackingInProgress" xml:space="preserve">
+    <value>추적 중…</value>
+  </data>
+  <data name="WeakTrackersWarningFormat" xml:space="preserve">
+    <value>{0}의 시작 위치에 무늬가 적어 결과가 어긋났을 수 있습니다</value>
+    <comment>{0}: list of tracker names.</comment>
+  </data>
+  <data name="TrackerListSeparator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="OutcomeWithDetailsFormat" xml:space="preserve">
+    <value>{0}. {1}</value>
+    <comment>{0}: tracking summary; {1}: stop reasons or warning.</comment>
+  </data>
+  <data name="StoppedTrackingFormat" xml:space="preserve">
+    <value>정지했습니다. 지금까지 추적한 {0} 프레임은 유지됩니다</value>
+    <comment>{0}: number of tracked frames kept.</comment>
+  </data>
+  <data name="TrackingFailedFormat" xml:space="preserve">
+    <value>추적하지 못했습니다: {0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="TrackerLostFormat" xml:space="preserve">
+    <value>{0}을(를) 놓쳤습니다 (신뢰도 저하)</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackerOutOfFrameFormat" xml:space="preserve">
+    <value>{0}이(가) 화면 밖으로 나갔습니다</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackedFramesFormat" xml:space="preserve">
+    <value>{0} 프레임을 추적했습니다</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="SetTargetMessage" xml:space="preserve">
+    <value>적용 대상 요소를 설정하세요</value>
+  </data>
+  <data name="SetSourceMessage" xml:space="preserve">
+    <value>추적 원본 요소를 설정하세요</value>
+  </data>
+  <data name="TargetLockedMessage" xml:space="preserve">
+    <value>적용 대상 요소가 잠겨 있습니다</value>
+  </data>
+  <data name="SameTargetMessage" xml:space="preserve">
+    <value>적용 대상이 추적 원본과 같습니다. 다른 대상을 설정하거나 흔들림 보정을 선택하세요</value>
+  </data>
+  <data name="NoTrackedSamplesMessage" xml:space="preserve">
+    <value>아직 추적 결과가 없습니다. 먼저 트래커를 추적하세요</value>
+  </data>
+  <data name="SelectMotionChannelsMessage" xml:space="preserve">
+    <value>위치, 회전, 크기 중 하나를 켜세요</value>
+  </data>
+  <data name="NoCommonFramesMessage" xml:space="preserve">
+    <value>트래커 간 공통 프레임이 없거나 위치가 너무 가깝습니다</value>
+  </data>
+  <data name="NoTrackingResultsMessage" xml:space="preserve">
+    <value>추적 결과가 없습니다</value>
+  </data>
+  <data name="NoOverlappingTimeMessage" xml:space="preserve">
+    <value>적용 대상과 추적 결과의 시간 범위가 겹치지 않습니다</value>
+  </data>
+  <data name="ApplyHistory" xml:space="preserve">
+    <value>모션 트래킹 적용</value>
+  </data>
+  <data name="AppliedFollowFormat" xml:space="preserve">
+    <value>“{0}”에 키프레임 {1}개를 기록했습니다. 재생 헤드 위치 (프레임 {2})에서 현재 배치가 유지됩니다</value>
+    <comment>{0}: element name; {1}: keyframe count; {2}: reference frame, one-based.</comment>
+  </data>
+  <data name="AppliedFormat" xml:space="preserve">
+    <value>“{0}”에 키프레임 {1}개를 기록했습니다</value>
+    <comment>{0}: element name; {1}: keyframe count.</comment>
+  </data>
+  <data name="RemoveHistory" xml:space="preserve">
+    <value>모션 트래킹 해제</value>
+  </data>
+  <data name="RemovedKeyframesFormat" xml:space="preserve">
+    <value>“{0}”의 추적 키프레임을 삭제했습니다</value>
+    <comment>{0}: element name.</comment>
+  </data>
+  <data name="NoAppliedKeyframesMessage" xml:space="preserve">
+    <value>해제할 추적 키프레임이 없습니다</value>
+  </data>
+  <data name="RenderFailedFormat" xml:space="preserve">
+    <value>프레임을 렌더링하지 못했습니다: {0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="SourceNotInScene" xml:space="preserve">
+    <value>추적 원본 요소가 장면에 없습니다.</value>
+  </data>
+</root>

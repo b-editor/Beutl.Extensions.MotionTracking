@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="MotionTracking" xml:space="preserve">
+    <value>Motion tracking</value>
+  </data>
+  <data name="TrackRotationScale" xml:space="preserve">
+    <value>Track rotation and scale too</value>
+  </data>
+  <data name="UpdateTemplate" xml:space="preserve">
+    <value>Update the template automatically</value>
+  </data>
+  <data name="FollowMotion" xml:space="preserve">
+    <value>Follow the tracked motion</value>
+  </data>
+  <data name="StabilizeLock" xml:space="preserve">
+    <value>Stabilize (lock in place)</value>
+  </data>
+  <data name="StabilizeSmooth" xml:space="preserve">
+    <value>Stabilize (smooth motion)</value>
+  </data>
+  <data name="EveryFrame" xml:space="preserve">
+    <value>Every frame</value>
+  </data>
+  <data name="StandardDensity" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="SparseDensity" xml:space="preserve">
+    <value>Fewer</value>
+  </data>
+  <data name="LocateSource" xml:space="preserve">
+    <value>Select the source in the timeline</value>
+  </data>
+  <data name="UseSelectionAsSource" xml:space="preserve">
+    <value>Use the selected element as the source (clears tracking results)</value>
+  </data>
+  <data name="PlayheadOutsideSource" xml:space="preserve">
+    <value>The playhead is outside the source element</value>
+  </data>
+  <data name="GoToSourceStart" xml:space="preserve">
+    <value>Go to the start of the source</value>
+  </data>
+  <data name="TrackedFramesHint" xml:space="preserve">
+    <value>Tracked frames for each tracker. Red marks frames with a low match confidence. Click to seek to a frame.</value>
+  </data>
+  <data name="ZoomOut" xml:space="preserve">
+    <value>Zoom out</value>
+  </data>
+  <data name="ZoomIn" xml:space="preserve">
+    <value>Zoom in</value>
+  </data>
+  <data name="ResetZoom" xml:space="preserve">
+    <value>Reset zoom</value>
+  </data>
+  <data name="UseSelectedElement" xml:space="preserve">
+    <value>Use selected element</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="RemoveAppliedHint" xml:space="preserve">
+    <value>Remove the applied keyframes</value>
+  </data>
+  <data name="PatternWidth" xml:space="preserve">
+    <value>Pattern width (px)</value>
+  </data>
+  <data name="PatternHeight" xml:space="preserve">
+    <value>Pattern height (px)</value>
+  </data>
+  <data name="SearchWidth" xml:space="preserve">
+    <value>Search width (px)</value>
+  </data>
+  <data name="SearchHeight" xml:space="preserve">
+    <value>Search height (px)</value>
+  </data>
+  <data name="StopConfidence" xml:space="preserve">
+    <value>Stop confidence (%)</value>
+  </data>
+  <data name="StopConfidenceHint" xml:space="preserve">
+    <value>Stop this tracker when the pattern match confidence falls below this value</value>
+  </data>
+  <data name="PositionOnlyHint" xml:space="preserve">
+    <value>Turn off to track position only</value>
+  </data>
+  <data name="FixedTemplateHint" xml:space="preserve">
+    <value>Turn off to keep comparing with the appearance at the start of tracking</value>
+  </data>
+  <data name="ClearResults" xml:space="preserve">
+    <value>Clear results</value>
+  </data>
+  <data name="ClearBefore" xml:space="preserve">
+    <value>Clear before playhead</value>
+  </data>
+  <data name="ClearAfter" xml:space="preserve">
+    <value>Clear after playhead</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Advanced settings</value>
+  </data>
+  <data name="UseTrackerHint" xml:space="preserve">
+    <value>Use for tracking and applying motion</value>
+  </data>
+  <data name="SampleCountFormat" xml:space="preserve">
+    <value>{0} frames</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="LocateTarget" xml:space="preserve">
+    <value>Select the target element in the timeline</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="AddTrackerHint" xml:space="preserve">
+    <value>Add a tracker (or double-click the frame)</value>
+  </data>
+  <data name="RemoveTrackerHint" xml:space="preserve">
+    <value>Delete the selected tracker (Delete)</value>
+  </data>
+  <data name="Trackers" xml:space="preserve">
+    <value>Trackers</value>
+  </data>
+  <data name="TrackToStart" xml:space="preserve">
+    <value>Track to start</value>
+  </data>
+  <data name="TrackToEnd" xml:space="preserve">
+    <value>Track to end</value>
+  </data>
+  <data name="OneFrame" xml:space="preserve">
+    <value>1 frame</value>
+  </data>
+  <data name="TrackPreviousFrame" xml:space="preserve">
+    <value>Track one frame backward</value>
+  </data>
+  <data name="TrackNextFrame" xml:space="preserve">
+    <value>Track one frame forward</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="Tracking" xml:space="preserve">
+    <value>Tracking</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="Rotation" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="Scale" xml:space="preserve">
+    <value>Scale</value>
+  </data>
+  <data name="SmoothingFrames" xml:space="preserve">
+    <value>Smoothing (frames)</value>
+  </data>
+  <data name="Keyframes" xml:space="preserve">
+    <value>Keyframes</value>
+  </data>
+  <data name="DensityHint" xml:space="preserve">
+    <value>Standard keeps the error within 0.1 px; Fewer keeps it within 0.5 px.</value>
+  </data>
+  <data name="LockHint" xml:space="preserve">
+    <value>Move the source in the opposite direction to hold the tracked point in place</value>
+  </data>
+  <data name="SmoothHint" xml:space="preserve">
+    <value>Remove only the small shakes in the source motion</value>
+  </data>
+  <data name="FollowHint" xml:space="preserve">
+    <value>Make the target element follow the tracked motion</value>
+  </data>
+  <data name="FeatureFormat" xml:space="preserve">
+    <value>Feature quality: {0}</value>
+    <comment>{0}: localized feature quality description.</comment>
+  </data>
+  <data name="FrameFormat" xml:space="preserve">
+    <value>Frame {0} / {1}</value>
+    <comment>{0}: current frame, one-based; {1}: total frame count.</comment>
+  </data>
+  <data name="SelectSourceMessage" xml:space="preserve">
+    <value>Select the video to track in the timeline.</value>
+  </data>
+  <data name="SourceRemovedMessage" xml:space="preserve">
+    <value>The source element was deleted.</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>(not set)</value>
+  </data>
+  <data name="Deleted" xml:space="preserve">
+    <value>(deleted)</value>
+  </data>
+  <data name="SelectPictureMessage" xml:space="preserve">
+    <value>Select a video or image element in the timeline</value>
+  </data>
+  <data name="SelectTargetMessage" xml:space="preserve">
+    <value>Select the element to animate in the timeline</value>
+  </data>
+  <data name="TrackerNameFormat" xml:space="preserve">
+    <value>Tracker {0}</value>
+    <comment>{0}: tracker number.</comment>
+  </data>
+  <data name="FeatureWeak" xml:space="preserve">
+    <value>Weak (tracking may be unstable in areas with little detail or on straight edges)</value>
+  </data>
+  <data name="FeatureNormal" xml:space="preserve">
+    <value>Fair</value>
+  </data>
+  <data name="FeatureGood" xml:space="preserve">
+    <value>Good</value>
+  </data>
+  <data name="NoActiveTrackersMessage" xml:space="preserve">
+    <value>No active trackers. Add a tracker or enable one in the list.</value>
+  </data>
+  <data name="AtLastFrameMessage" xml:space="preserve">
+    <value>This is the last frame of the source</value>
+  </data>
+  <data name="AtFirstFrameMessage" xml:space="preserve">
+    <value>This is the first frame of the source</value>
+  </data>
+  <data name="TrackingInProgress" xml:space="preserve">
+    <value>Tracking…</value>
+  </data>
+  <data name="WeakTrackersWarningFormat" xml:space="preserve">
+    <value>{0} started in areas with little detail, so the results may have drifted</value>
+    <comment>{0}: list of tracker names.</comment>
+  </data>
+  <data name="TrackerListSeparator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="OutcomeWithDetailsFormat" xml:space="preserve">
+    <value>{0}. {1}</value>
+    <comment>{0}: tracking summary; {1}: stop reasons or warning.</comment>
+  </data>
+  <data name="StoppedTrackingFormat" xml:space="preserve">
+    <value>Stopped. The {0} frames tracked so far have been kept</value>
+    <comment>{0}: number of tracked frames kept.</comment>
+  </data>
+  <data name="TrackingFailedFormat" xml:space="preserve">
+    <value>Tracking failed: {0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="TrackerLostFormat" xml:space="preserve">
+    <value>{0} was lost (low confidence)</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackerOutOfFrameFormat" xml:space="preserve">
+    <value>{0} left the frame</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackedFramesFormat" xml:space="preserve">
+    <value>Tracked {0} frames</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="SetTargetMessage" xml:space="preserve">
+    <value>Set a target element</value>
+  </data>
+  <data name="SetSourceMessage" xml:space="preserve">
+    <value>Set a source element</value>
+  </data>
+  <data name="TargetLockedMessage" xml:space="preserve">
+    <value>The target element is locked</value>
+  </data>
+  <data name="SameTargetMessage" xml:space="preserve">
+    <value>The target is the source element. Choose a different target or a stabilization mode.</value>
+  </data>
+  <data name="NoTrackedSamplesMessage" xml:space="preserve">
+    <value>No tracking data yet. Track a tracker first.</value>
+  </data>
+  <data name="SelectMotionChannelsMessage" xml:space="preserve">
+    <value>Enable position, rotation, or scale</value>
+  </data>
+  <data name="NoCommonFramesMessage" xml:space="preserve">
+    <value>The trackers have no frames in common, or are too close together</value>
+  </data>
+  <data name="NoTrackingResultsMessage" xml:space="preserve">
+    <value>There are no tracking results</value>
+  </data>
+  <data name="NoOverlappingTimeMessage" xml:space="preserve">
+    <value>The target element and the tracking results do not overlap in time</value>
+  </data>
+  <data name="ApplyHistory" xml:space="preserve">
+    <value>Apply motion tracking</value>
+  </data>
+  <data name="AppliedFollowFormat" xml:space="preserve">
+    <value>Wrote {1} keyframes to “{0}”. The current placement is preserved at the playhead (frame {2}).</value>
+    <comment>{0}: element name; {1}: keyframe count; {2}: reference frame, one-based.</comment>
+  </data>
+  <data name="AppliedFormat" xml:space="preserve">
+    <value>Wrote {1} keyframes to “{0}”</value>
+    <comment>{0}: element name; {1}: keyframe count.</comment>
+  </data>
+  <data name="RemoveHistory" xml:space="preserve">
+    <value>Remove motion tracking</value>
+  </data>
+  <data name="RemovedKeyframesFormat" xml:space="preserve">
+    <value>Removed the tracking keyframes from “{0}”</value>
+    <comment>{0}: element name.</comment>
+  </data>
+  <data name="NoAppliedKeyframesMessage" xml:space="preserve">
+    <value>There are no tracking keyframes to remove</value>
+  </data>
+  <data name="RenderFailedFormat" xml:space="preserve">
+    <value>Could not render the frame: {0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="SourceNotInScene" xml:space="preserve">
+    <value>The source element is not in the scene.</value>
+  </data>
+</root>

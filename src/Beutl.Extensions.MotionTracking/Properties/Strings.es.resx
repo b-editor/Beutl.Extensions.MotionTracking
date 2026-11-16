@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="MotionTracking" xml:space="preserve">
+    <value>Seguimiento de movimiento</value>
+  </data>
+  <data name="TrackRotationScale" xml:space="preserve">
+    <value>Seguir también rotación y escala</value>
+  </data>
+  <data name="UpdateTemplate" xml:space="preserve">
+    <value>Actualizar la plantilla automáticamente</value>
+  </data>
+  <data name="FollowMotion" xml:space="preserve">
+    <value>Seguir el movimiento</value>
+  </data>
+  <data name="StabilizeLock" xml:space="preserve">
+    <value>Estabilizar (fijar posición)</value>
+  </data>
+  <data name="StabilizeSmooth" xml:space="preserve">
+    <value>Estabilizar (suavizar movimiento)</value>
+  </data>
+  <data name="EveryFrame" xml:space="preserve">
+    <value>Cada fotograma</value>
+  </data>
+  <data name="StandardDensity" xml:space="preserve">
+    <value>Estándar</value>
+  </data>
+  <data name="SparseDensity" xml:space="preserve">
+    <value>Menos</value>
+  </data>
+  <data name="LocateSource" xml:space="preserve">
+    <value>Seleccionar el origen en la línea de tiempo</value>
+  </data>
+  <data name="UseSelectionAsSource" xml:space="preserve">
+    <value>Usar el elemento seleccionado como origen (borra los resultados)</value>
+  </data>
+  <data name="PlayheadOutsideSource" xml:space="preserve">
+    <value>El cabezal está fuera del elemento de origen</value>
+  </data>
+  <data name="GoToSourceStart" xml:space="preserve">
+    <value>Ir al inicio del origen</value>
+  </data>
+  <data name="TrackedFramesHint" xml:space="preserve">
+    <value>Fotogramas seguidos por cada rastreador. El rojo indica una confianza baja. Haz clic para ir a un fotograma.</value>
+  </data>
+  <data name="ZoomOut" xml:space="preserve">
+    <value>Alejar</value>
+  </data>
+  <data name="ZoomIn" xml:space="preserve">
+    <value>Acercar</value>
+  </data>
+  <data name="ResetZoom" xml:space="preserve">
+    <value>Restablecer zoom</value>
+  </data>
+  <data name="UseSelectedElement" xml:space="preserve">
+    <value>Usar elemento seleccionado</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="RemoveAppliedHint" xml:space="preserve">
+    <value>Quitar los fotogramas clave aplicados</value>
+  </data>
+  <data name="PatternWidth" xml:space="preserve">
+    <value>Ancho del patrón (px)</value>
+  </data>
+  <data name="PatternHeight" xml:space="preserve">
+    <value>Alto del patrón (px)</value>
+  </data>
+  <data name="SearchWidth" xml:space="preserve">
+    <value>Ancho de búsqueda (px)</value>
+  </data>
+  <data name="SearchHeight" xml:space="preserve">
+    <value>Alto de búsqueda (px)</value>
+  </data>
+  <data name="StopConfidence" xml:space="preserve">
+    <value>Confianza de parada (%)</value>
+  </data>
+  <data name="StopConfidenceHint" xml:space="preserve">
+    <value>Detener el rastreador si la confianza de coincidencia cae por debajo de este valor</value>
+  </data>
+  <data name="PositionOnlyHint" xml:space="preserve">
+    <value>Desactivar para seguir solo la posición</value>
+  </data>
+  <data name="FixedTemplateHint" xml:space="preserve">
+    <value>Desactivar para seguir comparando con el aspecto al inicio del seguimiento</value>
+  </data>
+  <data name="ClearResults" xml:space="preserve">
+    <value>Borrar resultados</value>
+  </data>
+  <data name="ClearBefore" xml:space="preserve">
+    <value>Borrar antes del cabezal</value>
+  </data>
+  <data name="ClearAfter" xml:space="preserve">
+    <value>Borrar después del cabezal</value>
+  </data>
+  <data name="AdvancedSettings" xml:space="preserve">
+    <value>Ajustes avanzados</value>
+  </data>
+  <data name="UseTrackerHint" xml:space="preserve">
+    <value>Usar para seguir y aplicar movimiento</value>
+  </data>
+  <data name="SampleCountFormat" xml:space="preserve">
+    <value>{0} fotogramas</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="LocateTarget" xml:space="preserve">
+    <value>Seleccionar el destino en la línea de tiempo</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Destino</value>
+  </data>
+  <data name="AddTrackerHint" xml:space="preserve">
+    <value>Añadir un rastreador (o hacer doble clic en la imagen)</value>
+  </data>
+  <data name="RemoveTrackerHint" xml:space="preserve">
+    <value>Eliminar el rastreador seleccionado (Supr)</value>
+  </data>
+  <data name="Trackers" xml:space="preserve">
+    <value>Rastreadores</value>
+  </data>
+  <data name="TrackToStart" xml:space="preserve">
+    <value>Seguir hasta el inicio</value>
+  </data>
+  <data name="TrackToEnd" xml:space="preserve">
+    <value>Seguir hasta el final</value>
+  </data>
+  <data name="OneFrame" xml:space="preserve">
+    <value>1 fotograma</value>
+  </data>
+  <data name="TrackPreviousFrame" xml:space="preserve">
+    <value>Seguir un fotograma hacia atrás</value>
+  </data>
+  <data name="TrackNextFrame" xml:space="preserve">
+    <value>Seguir un fotograma hacia delante</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>Detener</value>
+  </data>
+  <data name="Tracking" xml:space="preserve">
+    <value>Seguimiento</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Posición</value>
+  </data>
+  <data name="Rotation" xml:space="preserve">
+    <value>Rotación</value>
+  </data>
+  <data name="Scale" xml:space="preserve">
+    <value>Escala</value>
+  </data>
+  <data name="SmoothingFrames" xml:space="preserve">
+    <value>Suavizado (fotogramas)</value>
+  </data>
+  <data name="Keyframes" xml:space="preserve">
+    <value>Fotogramas clave</value>
+  </data>
+  <data name="DensityHint" xml:space="preserve">
+    <value>Estándar mantiene el error dentro de 0,1 px; Menos, dentro de 0,5 px.</value>
+  </data>
+  <data name="LockHint" xml:space="preserve">
+    <value>Mover el origen en sentido contrario para fijar el punto seguido</value>
+  </data>
+  <data name="SmoothHint" xml:space="preserve">
+    <value>Eliminar solo las pequeñas sacudidas del origen</value>
+  </data>
+  <data name="FollowHint" xml:space="preserve">
+    <value>Hacer que el destino siga el movimiento</value>
+  </data>
+  <data name="FeatureFormat" xml:space="preserve">
+    <value>Calidad del detalle: {0}</value>
+    <comment>{0}: localized feature quality description.</comment>
+  </data>
+  <data name="FrameFormat" xml:space="preserve">
+    <value>Fotograma {0} / {1}</value>
+    <comment>{0}: current frame, one-based; {1}: total frame count.</comment>
+  </data>
+  <data name="SelectSourceMessage" xml:space="preserve">
+    <value>Selecciona en la línea de tiempo el vídeo que quieras seguir.</value>
+  </data>
+  <data name="SourceRemovedMessage" xml:space="preserve">
+    <value>Se ha eliminado el elemento de origen.</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>(sin establecer)</value>
+  </data>
+  <data name="Deleted" xml:space="preserve">
+    <value>(eliminado)</value>
+  </data>
+  <data name="SelectPictureMessage" xml:space="preserve">
+    <value>Selecciona un vídeo o una imagen en la línea de tiempo</value>
+  </data>
+  <data name="SelectTargetMessage" xml:space="preserve">
+    <value>Selecciona en la línea de tiempo el elemento que quieras animar</value>
+  </data>
+  <data name="TrackerNameFormat" xml:space="preserve">
+    <value>Rastreador {0}</value>
+    <comment>{0}: tracker number.</comment>
+  </data>
+  <data name="FeatureWeak" xml:space="preserve">
+    <value>Débil (el seguimiento puede ser inestable en zonas sin detalle o bordes rectos)</value>
+  </data>
+  <data name="FeatureNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="FeatureGood" xml:space="preserve">
+    <value>Buena</value>
+  </data>
+  <data name="NoActiveTrackersMessage" xml:space="preserve">
+    <value>No hay rastreadores activos. Añade uno o actívalo en la lista.</value>
+  </data>
+  <data name="AtLastFrameMessage" xml:space="preserve">
+    <value>Este es el último fotograma del origen</value>
+  </data>
+  <data name="AtFirstFrameMessage" xml:space="preserve">
+    <value>Este es el primer fotograma del origen</value>
+  </data>
+  <data name="TrackingInProgress" xml:space="preserve">
+    <value>Siguiendo…</value>
+  </data>
+  <data name="WeakTrackersWarningFormat" xml:space="preserve">
+    <value>{0} comenzaron en zonas con poco detalle; los resultados pueden haberse desviado</value>
+    <comment>{0}: list of tracker names.</comment>
+  </data>
+  <data name="TrackerListSeparator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="OutcomeWithDetailsFormat" xml:space="preserve">
+    <value>{0}. {1}</value>
+    <comment>{0}: tracking summary; {1}: stop reasons or warning.</comment>
+  </data>
+  <data name="StoppedTrackingFormat" xml:space="preserve">
+    <value>Detenido. Se han conservado los {0} fotogramas seguidos</value>
+    <comment>{0}: number of tracked frames kept.</comment>
+  </data>
+  <data name="TrackingFailedFormat" xml:space="preserve">
+    <value>Error de seguimiento: {0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="TrackerLostFormat" xml:space="preserve">
+    <value>Se perdió {0} (confianza baja)</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackerOutOfFrameFormat" xml:space="preserve">
+    <value>{0} salió de la imagen</value>
+    <comment>{0}: tracker name.</comment>
+  </data>
+  <data name="TrackedFramesFormat" xml:space="preserve">
+    <value>Se han seguido {0} fotogramas</value>
+    <comment>{0}: number of tracked frames.</comment>
+  </data>
+  <data name="SetTargetMessage" xml:space="preserve">
+    <value>Establece un elemento de destino</value>
+  </data>
+  <data name="SetSourceMessage" xml:space="preserve">
+    <value>Establece un elemento de origen</value>
+  </data>
+  <data name="TargetLockedMessage" xml:space="preserve">
+    <value>El elemento de destino está bloqueado</value>
+  </data>
+  <data name="SameTargetMessage" xml:space="preserve">
+    <value>El destino es el mismo que el origen. Elige otro elemento o un modo de estabilización.</value>
+  </data>
+  <data name="NoTrackedSamplesMessage" xml:space="preserve">
+    <value>Aún no hay datos. Ejecuta primero el seguimiento.</value>
+  </data>
+  <data name="SelectMotionChannelsMessage" xml:space="preserve">
+    <value>Activa posición, rotación o escala</value>
+  </data>
+  <data name="NoCommonFramesMessage" xml:space="preserve">
+    <value>Los rastreadores no comparten fotogramas o están demasiado cerca</value>
+  </data>
+  <data name="NoTrackingResultsMessage" xml:space="preserve">
+    <value>No hay resultados de seguimiento</value>
+  </data>
+  <data name="NoOverlappingTimeMessage" xml:space="preserve">
+    <value>El destino y los resultados no coinciden en el tiempo</value>
+  </data>
+  <data name="ApplyHistory" xml:space="preserve">
+    <value>Aplicar seguimiento de movimiento</value>
+  </data>
+  <data name="AppliedFollowFormat" xml:space="preserve">
+    <value>Se han escrito {1} fotogramas clave en «{0}». Se conserva la posición actual en el cabezal (fotograma {2}).</value>
+    <comment>{0}: element name; {1}: keyframe count; {2}: reference frame, one-based.</comment>
+  </data>
+  <data name="AppliedFormat" xml:space="preserve">
+    <value>Se han escrito {1} fotogramas clave en «{0}»</value>
+    <comment>{0}: element name; {1}: keyframe count.</comment>
+  </data>
+  <data name="RemoveHistory" xml:space="preserve">
+    <value>Quitar seguimiento de movimiento</value>
+  </data>
+  <data name="RemovedKeyframesFormat" xml:space="preserve">
+    <value>Se han quitado los fotogramas clave de seguimiento de «{0}»</value>
+    <comment>{0}: element name.</comment>
+  </data>
+  <data name="NoAppliedKeyframesMessage" xml:space="preserve">
+    <value>No hay fotogramas clave de seguimiento que quitar</value>
+  </data>
+  <data name="RenderFailedFormat" xml:space="preserve">
+    <value>No se pudo renderizar el fotograma: {0}</value>
+    <comment>{0}: exception message.</comment>
+  </data>
+  <data name="SourceNotInScene" xml:space="preserve">
+    <value>El elemento de origen no está en la escena.</value>
+  </data>
+</root>

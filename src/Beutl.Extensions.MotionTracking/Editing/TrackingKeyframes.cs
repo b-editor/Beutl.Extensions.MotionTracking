@@ -1,6 +1,8 @@
+using System.Globalization;
 using Beutl.Animation;
 using Beutl.Composition;
 using Beutl.Engine;
+using Beutl.Extensions.MotionTracking.Properties;
 using Beutl.Extensions.MotionTracking.Tracking;
 using Beutl.Graphics;
 using Beutl.Graphics.Transformation;
@@ -18,7 +20,14 @@ namespace Beutl.Extensions.MotionTracking.Editing;
 /// </summary>
 internal static class TrackingKeyframes
 {
-    public const string GroupName = "モーショントラッキング";
+    // Names are saved in projects. Recognize all shipped translations and the original Japanese name so that
+    // reapplying or removing motion still finds the group after the editor's language changes.
+    private const string LegacyGroupName = "モーショントラッキング";
+    private static readonly HashSet<string> s_groupNames = new(
+        new[] { "en", "ja", "zh-CN", "ko-KR", "es" }
+            .Select(culture => Strings.ResourceManager.GetString(nameof(Strings.MotionTracking), CultureInfo.GetCultureInfo(culture))!)
+            .Append(LegacyGroupName),
+        StringComparer.Ordinal);
 
     // Below these a rotation or scale curve does nothing that could be seen.
     private const float IdentityRotation = 0.001f;
@@ -29,7 +38,7 @@ internal static class TrackingKeyframes
         => drawable.Transform.Value is TransformGroup root ? FindGroup(root) : null;
 
     private static TransformGroup? FindGroup(TransformGroup root)
-        => root.Children.OfType<TransformGroup>().FirstOrDefault(group => group.Name.Value == GroupName);
+        => root.Children.OfType<TransformGroup>().FirstOrDefault(group => s_groupNames.Contains(group.Name.Value));
 
     /// <summary>Where the transforms of the drawable rotate and scale about, in scene coordinates.</summary>
     public static (double X, double Y) MeasurePivot(Drawable drawable, PixelSize frameSize, MediaTime time)
@@ -77,7 +86,7 @@ internal static class TrackingKeyframes
         MotionChannels channels,
         float tolerance)
     {
-        var group = new TransformGroup { Name = { Value = GroupName } };
+        var group = new TransformGroup { Name = { Value = Strings.MotionTracking } };
         int count = 0;
         if (channels.HasFlag(MotionChannels.Position))
         {

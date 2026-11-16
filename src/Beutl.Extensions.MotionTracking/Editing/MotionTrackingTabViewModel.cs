@@ -10,6 +10,7 @@ using Avalonia.Threading;
 using Beutl.Editor;
 using Beutl.Editor.Services;
 using Beutl.Extensibility;
+using Beutl.Extensions.MotionTracking.Properties;
 using Beutl.Extensions.MotionTracking.Rendering;
 using Beutl.Extensions.MotionTracking.Tracking;
 using Beutl.Graphics;
@@ -45,17 +46,13 @@ public enum KeyframeDensity
 }
 
 /// <summary>
-/// The "モーショントラッキング" tool tab: trackers placed on the frames of one element, the tracking runs that follow
+/// The motion tracking tool tab: trackers placed on the frames of one element, the tracking runs that follow
 /// them through the video, and applying the result as keyframes. Everything happens on the UI thread except the
 /// tracking run, whose results come back here in batches. Frames in this class are counted from the start of the
 /// source element, so that moving the element does not move the tracks.
 /// </summary>
 public sealed class MotionTrackingTabViewModel : IToolContext
 {
-    private const string NoSourceMessage = "追跡する動画をタイムラインで選択してください。";
-    private const string MissingSourceMessage = "追跡元の要素が削除されました。";
-    private const string NoFrameHere = "再生ヘッドが追跡元の範囲の外にあります";
-
     // Measured on real footage: below the first, a tracker slides along an edge or loses a flat area at once.
     private const float WeakFeature = 1.5f;
     private const float GoodFeature = 8f;
@@ -151,7 +148,7 @@ public sealed class MotionTrackingTabViewModel : IToolContext
 
     public IReactiveProperty<bool> IsSelected { get; } = new ReactivePropertySlim<bool>();
 
-    public IReadOnlyReactiveProperty<string> Header { get; } = new ReactivePropertySlim<string>("モーショントラッキング");
+    public IReadOnlyReactiveProperty<string> Header { get; } = new ReactivePropertySlim<string>(Strings.MotionTracking);
 
     /// <summary>The element being tracked, or null when there is none or it left the scene.</summary>
     public ReactivePropertySlim<Element?> Source { get; } = new();
@@ -159,12 +156,12 @@ public sealed class MotionTrackingTabViewModel : IToolContext
     public ReactivePropertySlim<string> SourceName { get; } = new("");
 
     /// <summary>Why nothing can be tracked, or null while <see cref="Source"/> is set.</summary>
-    public ReactivePropertySlim<string?> SourceMessage { get; } = new(NoSourceMessage);
+    public ReactivePropertySlim<string?> SourceMessage { get; } = new(Strings.SelectSourceMessage);
 
     /// <summary>The element that follows the motion, or null when there is none or it left the scene.</summary>
     public ReactivePropertySlim<Element?> Target { get; } = new();
 
-    public ReactivePropertySlim<string> TargetName { get; } = new("（未設定）");
+    public ReactivePropertySlim<string> TargetName { get; } = new(Strings.NotSet);
 
     public ObservableCollection<TrackerViewModel> Trackers { get; } = [];
 
@@ -224,7 +221,7 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         Element? element = SelectedElement();
         if (element == null || !HasPicture(element))
         {
-            Status.Value = "タイムラインで動画や画像の要素を選択してください";
+            Status.Value = Strings.SelectPictureMessage;
             return;
         }
 
@@ -238,7 +235,7 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         Element? element = SelectedElement();
         if (element == null || !HasPicture(element))
         {
-            Status.Value = "タイムラインで動きを付けたい要素を選択してください";
+            Status.Value = Strings.SelectTargetMessage;
             return;
         }
 
@@ -301,7 +298,7 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         // A second tracker in the middle would land exactly on the first.
         float offset = (Trackers.Count % 4) * halfSize * 4;
         var pose = new TrackPose((float)(x ?? size.Width / 2.0 + offset), (float)(y ?? size.Height / 2.0 + offset));
-        var tracker = new TrackerViewModel($"トラッカー {number}", s_colors[(number - 1) % s_colors.Length], halfSize, pose);
+        var tracker = new TrackerViewModel(string.Format(Strings.TrackerNameFormat, number), s_colors[(number - 1) % s_colors.Length], halfSize, pose);
 
         // A new tracker uses the settings of the one being worked with.
         if (SelectedTracker.Value is { } selected)
@@ -415,9 +412,9 @@ public sealed class MotionTrackingTabViewModel : IToolContext
 
         FeatureStrength.Value = MeasureFeature(tracker, frame) switch
         {
-            < WeakFeature => "弱い（模様の少ない場所や直線の上では、追跡が不安定になります）",
-            < GoodFeature => "普通",
-            _ => "良い",
+            < WeakFeature => Strings.FeatureWeak,
+            < GoodFeature => Strings.FeatureNormal,
+            _ => Strings.FeatureGood,
         };
     }
 
@@ -455,14 +452,14 @@ public sealed class MotionTrackingTabViewModel : IToolContext
 
         if (CurrentFrame.Value is not { } start)
         {
-            Status.Value = NoFrameHere;
+            Status.Value = Strings.PlayheadOutsideSource;
             return Task.CompletedTask;
         }
 
         TrackerViewModel[] trackers = [.. Trackers.Where(tracker => tracker.IsActive.Value)];
         if (trackers.Length == 0)
         {
-            Status.Value = "追跡するトラッカーがありません。トラッカーを追加するか、一覧でオンにしてください";
+            Status.Value = Strings.NoActiveTrackersMessage;
             return Task.CompletedTask;
         }
 
@@ -471,7 +468,7 @@ public sealed class MotionTrackingTabViewModel : IToolContext
             last = Math.Clamp(start + direction, 0, FrameCount.Value - 1);
         if (last == start)
         {
-            Status.Value = direction > 0 ? "ここが追跡元の最後のフレームです" : "ここが追跡元の最初のフレームです";
+            Status.Value = direction > 0 ? Strings.AtLastFrameMessage : Strings.AtFirstFrameMessage;
             return Task.CompletedTask;
         }
 
@@ -485,7 +482,7 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         _tracking = tracking;
         IsTracking.Value = true;
         Progress.Value = 0;
-        Status.Value = "追跡しています…";
+        Status.Value = Strings.TrackingInProgress;
         _requestedFrame = null;
         _runningTrackers = trackers;
         _runFirstFrame = start;
@@ -522,17 +519,20 @@ public sealed class MotionTrackingTabViewModel : IToolContext
             reached = outcome.LastFrame;
             message = DescribeOutcome(trackers, outcome, start);
             if (weak.Length > 0)
-                message += $"。{string.Join("、", weak)}は模様の少ない場所にあったので、結果がずれているかもしれません";
+            {
+                string warning = string.Format(Strings.WeakTrackersWarningFormat, string.Join(Strings.TrackerListSeparator, weak));
+                message = string.Format(Strings.OutcomeWithDetailsFormat, message, warning);
+            }
         }
         catch (OperationCanceledException)
         {
-            message = $"停止しました。ここまでの {Math.Abs(LastReported(start) - start)} フレームは残っています";
+            message = string.Format(Strings.StoppedTrackingFormat, Math.Abs(LastReported(start) - start));
             reached = LastReported(start);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Tracking failed");
-            message = $"追跡できませんでした: {ex.Message}";
+            message = string.Format(Strings.TrackingFailedFormat, ex.Message);
             reached = LastReported(start);
         }
 
@@ -564,16 +564,16 @@ public sealed class MotionTrackingTabViewModel : IToolContext
             switch (outcome.Stops[i])
             {
                 case TrackStatus.LowConfidence:
-                    stops.Add($"{trackers[i].Name.Value}は見失いました（信頼度の低下）");
+                    stops.Add(string.Format(Strings.TrackerLostFormat, trackers[i].Name.Value));
                     break;
                 case TrackStatus.OutOfFrame:
-                    stops.Add($"{trackers[i].Name.Value}は画面の外に出ました");
+                    stops.Add(string.Format(Strings.TrackerOutOfFrameFormat, trackers[i].Name.Value));
                     break;
             }
         }
 
-        string result = $"{frames} フレーム追跡しました";
-        return stops.Count == 0 ? result : $"{result}。{string.Join("、", stops)}";
+        string result = string.Format(Strings.TrackedFramesFormat, frames);
+        return stops.Count == 0 ? result : string.Format(Strings.OutcomeWithDetailsFormat, result, string.Join(Strings.TrackerListSeparator, stops));
     }
 
     // Runs on the tracking thread; the frame is only valid during the call.
@@ -644,27 +644,27 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         if (element == null)
         {
             Status.Value = Use.Value == MotionUse.Follow
-                ? "適用先の要素を設定してください"
-                : "追跡元の要素を設定してください";
+                ? Strings.SetTargetMessage
+                : Strings.SetSourceMessage;
             return;
         }
 
         if (_scene != null && _scene.IsElementLocked(element))
         {
-            Status.Value = "適用先の要素はロックされています";
+            Status.Value = Strings.TargetLockedMessage;
             return;
         }
 
         if (Use.Value == MotionUse.Follow && ReferenceEquals(element, Source.Value))
         {
-            Status.Value = "適用先が追跡元と同じ要素です。別の要素を設定するか、手ブレの補正を選んでください";
+            Status.Value = Strings.SameTargetMessage;
             return;
         }
 
         TrackerViewModel[] trackers = [.. Trackers.Where(tracker => tracker.IsActive.Value && tracker.Samples.Count > 0)];
         if (trackers.Length == 0)
         {
-            Status.Value = "まだ追跡していません。先にトラッカーを追跡してください";
+            Status.Value = Strings.NoTrackedSamplesMessage;
             return;
         }
 
@@ -677,7 +677,7 @@ public sealed class MotionTrackingTabViewModel : IToolContext
             channels |= MotionChannels.Scale;
         if (channels == MotionChannels.None)
         {
-            Status.Value = "位置・回転・拡大縮小のどれかをオンにしてください";
+            Status.Value = Strings.SelectMotionChannelsMessage;
             return;
         }
 
@@ -685,23 +685,23 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         if (path == null)
         {
             Status.Value = trackers.Length > 1
-                ? "トラッカー同士に共通のフレームがないか、位置が近すぎます"
-                : "追跡結果がありません";
+                ? Strings.NoCommonFramesMessage
+                : Strings.NoTrackingResultsMessage;
             return;
         }
 
         int written = WriteKeyframes(element, path, channels);
         if (written == 0)
         {
-            Status.Value = "適用先の要素と追跡結果の時間が重なっていません";
+            Status.Value = Strings.NoOverlappingTimeMessage;
             return;
         }
 
-        _history?.Commit("モーショントラッキングを適用");
+        _history?.Commit(Strings.ApplyHistory);
         string name = Describe(element);
         Status.Value = Use.Value == MotionUse.Follow
-            ? $"「{name}」に {written} 個のキーフレームを書き込みました。再生ヘッドの位置（フレーム {path.ReferenceFrame + 1}）で今の配置のままになります"
-            : $"「{name}」に {written} 個のキーフレームを書き込みました";
+            ? string.Format(Strings.AppliedFollowFormat, name, written, path.ReferenceFrame + 1)
+            : string.Format(Strings.AppliedFormat, name, written);
     }
 
     private int WriteKeyframes(Element element, MotionPath path, MotionChannels channels)
@@ -763,12 +763,12 @@ public sealed class MotionTrackingTabViewModel : IToolContext
 
         if (removed)
         {
-            _history?.Commit("モーショントラッキングを解除");
-            Status.Value = $"「{Describe(element)}」のトラッキングのキーフレームを削除しました";
+            _history?.Commit(Strings.RemoveHistory);
+            Status.Value = string.Format(Strings.RemovedKeyframesFormat, Describe(element));
         }
         else
         {
-            Status.Value = "このトラッキングのキーフレームはまだありません";
+            Status.Value = Strings.NoAppliedKeyframesMessage;
         }
     }
 
@@ -802,12 +802,12 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         bool sourcePresent = _boundSource != null && _scene != null && _scene.Children.Contains(_boundSource);
         Source.Value = sourcePresent ? _boundSource : null;
         SourceName.Value = sourcePresent ? Describe(_boundSource!) : "";
-        SourceMessage.Value = sourcePresent ? null : _boundSource == null ? NoSourceMessage : MissingSourceMessage;
+        SourceMessage.Value = sourcePresent ? null : _boundSource == null ? Strings.SelectSourceMessage : Strings.SourceRemovedMessage;
         UpdateRange();
 
         bool targetPresent = _boundTarget != null && _scene != null && _scene.Children.Contains(_boundTarget);
         Target.Value = targetPresent ? _boundTarget : null;
-        TargetName.Value = targetPresent ? Describe(_boundTarget!) : _boundTarget == null ? "（未設定）" : "（削除されました）";
+        TargetName.Value = targetPresent ? Describe(_boundTarget!) : _boundTarget == null ? Strings.NotSet : Strings.Deleted;
     }
 
     private void UpdateRange()
@@ -894,7 +894,7 @@ public sealed class MotionTrackingTabViewModel : IToolContext
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to render a frame of the source element");
-                Status.Value = $"フレームを描画できませんでした: {ex.Message}";
+                Status.Value = string.Format(Strings.RenderFailedFormat, ex.Message);
                 return;
             }
 
