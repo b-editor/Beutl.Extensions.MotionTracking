@@ -14,7 +14,7 @@ using Beutl.Serialization;
 namespace Beutl.Extensions.MotionTracking.Rendering;
 
 /// <summary>What a reader is opened from: a copy of the scene taken on the thread that owns it.</summary>
-internal sealed record SourceCapture(JsonObject Scene, Uri? Uri, Project Project, Guid SourceId, MediaTime Start, Rational Rate);
+internal sealed record SourceCapture(JsonObject Scene, Uri? Uri, Project Project, Guid SourceId, MediaTime Start, Rational Rate, FontManager Fonts);
 
 /// <summary>
 /// Renders the frames of one element alone, the way it appears in the scene. It works on a detached copy of the
@@ -30,15 +30,17 @@ internal sealed class SourceFrameReader : ITrackingFrameSource, IDisposable
     private readonly Scene _scene;
     private readonly MediaTime _start;
     private readonly Rational _rate;
+    private readonly FontManager _fonts;
     private readonly PixelSize _size;
     private SceneRenderer? _renderer;
     private int _renderedFrames;
 
-    private SourceFrameReader(Scene scene, MediaTime start, Rational rate)
+    private SourceFrameReader(Scene scene, MediaTime start, Rational rate, FontManager fonts)
     {
         _scene = scene;
         _start = start;
         _rate = rate;
+        _fonts = fonts;
         _size = scene.FrameSize.Value;
     }
 
@@ -46,7 +48,7 @@ internal sealed class SourceFrameReader : ITrackingFrameSource, IDisposable
         => (int)Math.Clamp(BackwardBufferBytes / Math.Max(_size.Width * _size.Height * 4L, 1), 2, MaxBackwardFrames);
 
     /// <summary>Reads what the copy is made from. Call on the thread that owns the scene.</summary>
-    public static SourceCapture Capture(Scene scene, Element source)
+    public static SourceCapture Capture(Scene scene, Element source, FontManager fonts)
     {
         JsonObject json = CoreSerializer.SerializeToJsonObject(scene, new CoreSerializerOptions
         {
@@ -66,7 +68,7 @@ internal sealed class SourceFrameReader : ITrackingFrameSource, IDisposable
                 project.Variables.Value[key] = value;
         }
 
-        return new SourceCapture(json, scene.Uri, project, source.Id.Value, source.Start.Value, rate);
+        return new SourceCapture(json, scene.Uri, project, source.Id.Value, source.Start.Value, rate, fonts);
     }
 
     /// <summary>Builds the copy and a renderer for it. It takes over the capture, and can run on any thread.</summary>
@@ -88,7 +90,7 @@ internal sealed class SourceFrameReader : ITrackingFrameSource, IDisposable
         _ = new BeutlApplication { Project = { Value = capture.Project } };
 
         Isolate(scene, capture.SourceId);
-        return new SourceFrameReader(scene, capture.Start, capture.Rate);
+        return new SourceFrameReader(scene, capture.Start, capture.Rate, capture.Fonts);
     }
 
     // Leaves only the source in the copy, fully visible and without the motion earlier tracking results applied to it.
@@ -139,7 +141,7 @@ internal sealed class SourceFrameReader : ITrackingFrameSource, IDisposable
 
     private Bitmap Render(MediaTime time, CancellationToken cancellationToken)
     {
-        _renderer ??= ExportRendererFactory.Create(_scene);
+        _renderer ??= ExportRendererFactory.Create(_scene, _fonts);
         CompositionFrame frame = _renderer.Compositor.EvaluateGraphics(time, _rate, cancellationToken);
         _renderer.Render(frame);
         Bitmap snapshot = _renderer.Snapshot();

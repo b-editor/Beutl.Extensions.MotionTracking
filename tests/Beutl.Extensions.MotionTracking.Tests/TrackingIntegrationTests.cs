@@ -6,6 +6,7 @@ using Beutl.Extensions.MotionTracking.Editing;
 using Beutl.Extensions.MotionTracking.Properties;
 using Beutl.Extensions.MotionTracking.Tracking;
 using Beutl.Graphics;
+using Beutl.Graphics.Shapes;
 using Beutl.Graphics.Transformation;
 using Beutl.Media;
 using Beutl.ProjectSystem;
@@ -336,6 +337,42 @@ public class TrackingIntegrationTests
         tab.Apply();
 
         Assert.That(GroupOf(target)!.Children.Single(), Is.TypeOf<TranslateTransform>());
+    }
+
+    [AvaloniaTest]
+    public async Task TextTurningAboutTheCornerOfItsBoxFollowsThePicture()
+    {
+        HeadlessScene.EnsureAvailable();
+        using var f = new EditorFixture();
+        Element source = f.AddTurningPicture(degrees: 2f, scalePercent: 1f, frames: 20);
+
+        // Its transforms turn it about the corner of its box, which only laying the text out finds.
+        var text = new TextBlock { Text = { Value = "Beutl" }, Size = { Value = 48 }, TransformOrigin = { Value = RelativePoint.TopLeft } };
+        text.Fill.Value = new SolidColorBrush(Colors.White);
+        ((TransformGroup)text.Transform.Value!).Children.Add(new TranslateTransform(-80, -30));
+        Element target = f.Add(text, MediaTime.Zero, EditorFixture.Frame(30), layer: 1);
+        var tab = f.OpenTab(source);
+        tab.SetTarget(target);
+        tab.MoveTracker(tab.Trackers.Single(), CenterX - 120, CenterY);
+        tab.AddTracker(CenterX + 120, CenterY);
+        await tab.TrackAsync(1);
+        f.Clock.Seek(EditorFixture.Frame(0));
+        tab.UseRotation.Value = true;
+        tab.UseScale.Value = true;
+
+        tab.Apply();
+
+        // Like everything in the picture, it turns and grows about the middle of the frame.
+        Assert.That(GroupOf(target), Is.Not.Null, tab.Status.Value);
+        source.IsEnabled.Value = false;
+        using Bitmap first = HeadlessScene.Render(f.Scene, EditorFixture.Frame(0));
+        using Bitmap last = HeadlessScene.Render(f.Scene, EditorFixture.Frame(20));
+        (double X, double Y) start = HeadlessScene.FindBright(first)!.Value;
+        (double X, double Y) end = HeadlessScene.FindBright(last)!.Value;
+        Matrix turn = MatrixAt(DrawableOf(source), 20);
+        double x = start.X - CenterX, y = start.Y - CenterY;
+        Assert.That(end.X, Is.EqualTo(CenterX + x * turn.M11 + y * turn.M21).Within(1.5));
+        Assert.That(end.Y, Is.EqualTo(CenterY + x * turn.M12 + y * turn.M22).Within(1.5));
     }
 
     [AvaloniaTest]

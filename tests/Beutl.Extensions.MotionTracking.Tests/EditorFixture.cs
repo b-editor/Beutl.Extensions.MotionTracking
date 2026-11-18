@@ -5,6 +5,7 @@ using Avalonia.Platform.Storage;
 using Beutl.Animation;
 using Beutl.Collections;
 using Beutl.Composition;
+using Beutl.Configuration;
 using Beutl.Editor;
 using Beutl.Editor.Observers;
 using Beutl.Editor.Services;
@@ -38,6 +39,9 @@ internal sealed class EditorFixture : IDisposable
         return path;
     });
 
+    // The installed fonts, read from the folders Beutl's font settings list by default, as the editor provides them.
+    private static readonly Lazy<FontManager> s_fonts = new(() => new FontManager(new FontConfig()));
+
     private readonly BeutlApplication _application;
     private readonly Dictionary<Type, object> _services = [];
     private readonly CoreObjectOperationObserver _observer;
@@ -60,8 +64,11 @@ internal sealed class EditorFixture : IDisposable
         _services[typeof(IEditorClock)] = Clock;
         _services[typeof(HistoryManager)] = History;
         _services[typeof(Scene)] = Scene;
+        _services[typeof(FontManager)] = Fonts;
         Context = new FakeEditorContext(Scene, this);
     }
+
+    public static FontManager Fonts => s_fonts.Value;
 
     public Scene Scene { get; }
 
@@ -250,7 +257,7 @@ internal static class HeadlessScene
         EnsureAvailable();
         return RenderThread.Dispatcher.Invoke(() =>
         {
-            using var renderer = new SceneRenderer(scene, RenderIntent.Delivery);
+            using var renderer = new SceneRenderer(scene, EditorFixture.Fonts, RenderIntent.Delivery);
             CompositionFrame frame = renderer.Compositor.EvaluateGraphics(time);
             renderer.Render(frame);
             using Bitmap snapshot = renderer.Snapshot();
