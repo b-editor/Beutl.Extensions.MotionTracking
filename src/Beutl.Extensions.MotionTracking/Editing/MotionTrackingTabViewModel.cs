@@ -17,6 +17,7 @@ using Beutl.Graphics;
 using Beutl.Logging;
 using Beutl.Media;
 using Beutl.ProjectSystem;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Reactive.Bindings;
 using Color = Avalonia.Media.Color;
@@ -718,10 +719,11 @@ public sealed class MotionTrackingTabViewModel : IToolContext
             _ => 0,
         };
 
+        FontManager fonts = _services.GetRequiredService<FontManager>();
         int written = 0;
         foreach (Drawable drawable in element.Objects.OfType<Drawable>())
         {
-            (double pivotX, double pivotY) = TrackingKeyframes.MeasurePivot(drawable, SceneSize, referenceTime);
+            (double pivotX, double pivotY) = TrackingKeyframes.MeasurePivot(drawable, SceneSize, referenceTime, fonts);
             TransformKey[] keys = moving.ToTransformKeys(Use.Value, channels, pivotX, pivotY, smoothed);
             List<(TransformKey Key, MediaTime Time)> timed = ToKeyTimes(keys, element);
             if (timed.Count > 0)
@@ -913,7 +915,7 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         _reader = null;
         _readerStale = false;
         _shownFrame = null;
-        SourceCapture capture = SourceFrameReader.Capture(_scene!, Source.Value ?? _boundSource!);
+        SourceCapture capture = SourceFrameReader.Capture(_scene!, Source.Value ?? _boundSource!, _services.GetRequiredService<FontManager>());
         SourceFrameReader reader = await Task.Run(() => SourceFrameReader.Open(capture));
         if (_lifetime.IsCancellationRequested)
         {

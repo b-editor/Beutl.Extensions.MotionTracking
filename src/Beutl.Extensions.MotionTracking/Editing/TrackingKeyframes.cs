@@ -41,7 +41,7 @@ internal static class TrackingKeyframes
         => root.Children.OfType<TransformGroup>().FirstOrDefault(group => s_groupNames.Contains(group.Name.Value));
 
     /// <summary>Where the transforms of the drawable rotate and scale about, in scene coordinates.</summary>
-    public static (double X, double Y) MeasurePivot(Drawable drawable, PixelSize frameSize, MediaTime time)
+    public static (double X, double Y) MeasurePivot(Drawable drawable, PixelSize frameSize, MediaTime time, FontManager fonts)
     {
         var canvas = new Size(frameSize.Width, frameSize.Height);
         if (drawable.AlignmentX.Value == AlignmentX.Center
@@ -53,7 +53,8 @@ internal static class TrackingKeyframes
             return (canvas.Width / 2.0, canvas.Height / 2.0);
         }
 
-        var context = new CompositionContext(time) { TargetDomain = new Rect(default, canvas) };
+        // Text is measured with the editor's fonts, as the renderer lays it out.
+        var context = new CompositionContext(time) { TargetDomain = new Rect(default, canvas), Fonts = fonts };
         using var resource = (Drawable.Resource)drawable.ToResource(context);
         Size size = resource.Measure(canvas);
         Point origin = resource.TransformOrigin.ToPixels(size);
