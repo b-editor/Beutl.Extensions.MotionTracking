@@ -18,6 +18,7 @@ using Beutl.Graphics.Rendering;
 using Beutl.Graphics.Shapes;
 using Beutl.Graphics.Transformation;
 using Beutl.Media;
+using Beutl.Media.Decoding;
 using Beutl.Media.Source;
 using Beutl.ProjectSystem;
 using FluentAvalonia.UI.Controls;
@@ -42,11 +43,20 @@ internal sealed class EditorFixture : IDisposable
     // The installed fonts, read from the folders Beutl's font settings list by default, as the editor provides them.
     private static readonly Lazy<FontManager> s_fonts = new(() => new FontManager(new FontConfig()));
 
+    // The decoders Beutl brings itself, which open the animated pictures that stand in for video here.
+    private static readonly Lazy<DecoderRegistry> s_decoders = new(() =>
+    {
+        var decoders = new DecoderRegistry(new ExtensionConfig());
+        BuiltInDecoders.Register(decoders);
+        return decoders;
+    });
+
     private readonly BeutlApplication _application;
     private readonly Dictionary<Type, object> _services = [];
     private readonly CoreObjectOperationObserver _observer;
     private readonly IDisposable _historySubscription;
     private readonly List<MotionTrackingTabViewModel> _tabs = [];
+    private readonly List<string> _files = [];
 
     public EditorFixture()
     {
@@ -65,10 +75,13 @@ internal sealed class EditorFixture : IDisposable
         _services[typeof(HistoryManager)] = History;
         _services[typeof(Scene)] = Scene;
         _services[typeof(FontManager)] = Fonts;
+        _services[typeof(DecoderRegistry)] = Decoders;
         Context = new FakeEditorContext(Scene, this);
     }
 
     public static FontManager Fonts => s_fonts.Value;
+
+    public static DecoderRegistry Decoders => s_decoders.Value;
 
     public Scene Scene { get; }
 
@@ -120,6 +133,19 @@ internal sealed class EditorFixture : IDisposable
         return Add(picture, Frame(0), Frame(frames + 1), layer);
     }
 
+    // The picture moving by whole pixels in a video element, which only opens through the editor's decoders.
+    public Element AddMovingVideo(int speedX, int speedY, int frames, int layer = 0)
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"motion-tracking-video-{Guid.NewGuid():N}.apng");
+        _files.Add(path);
+        new SyntheticVideo(Width, Height).SaveMovingVideo(path, speedX, speedY, frames);
+        var source = new VideoSource();
+        source.ReadFrom(new Uri(path));
+        var video = new SourceVideo();
+        video.Source.Value = source;
+        return Add(video, MediaTime.Zero, Frame(frames + 1), layer);
+    }
+
     /// <summary>A small white rectangle in the middle of the frame, to be moved by what is tracked.</summary>
     public Element AddMarker(MediaTime length, int layer = 1, int size = 20)
     {
@@ -164,6 +190,10 @@ internal sealed class EditorFixture : IDisposable
         History.Dispose();
         _observer.Dispose();
         _application.Project.Value = null;
+
+        // The decoder reads an animated PNG whole when it opens it, so nothing holds the files any more.
+        foreach (string file in _files)
+            File.Delete(file);
     }
 }
 
@@ -257,7 +287,7 @@ internal static class HeadlessScene
         EnsureAvailable();
         return RenderThread.Dispatcher.Invoke(() =>
         {
-            using var renderer = new SceneRenderer(scene, EditorFixture.Fonts, RenderIntent.Delivery);
+            using var renderer = new SceneRenderer(scene, EditorFixture.Fonts, RenderIntent.Delivery, decoders: EditorFixture.Decoders);
             CompositionFrame frame = renderer.Compositor.EvaluateGraphics(time);
             renderer.Render(frame);
             using Bitmap snapshot = renderer.Snapshot();

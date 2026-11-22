@@ -7,6 +7,7 @@ using Beutl.Extensions.MotionTracking.Tracking;
 using Beutl.Graphics;
 using Beutl.Graphics.Transformation;
 using Beutl.Media;
+using Beutl.Media.Decoding;
 
 namespace Beutl.Extensions.MotionTracking.Editing;
 
@@ -41,7 +42,8 @@ internal static class TrackingKeyframes
         => root.Children.OfType<TransformGroup>().FirstOrDefault(group => s_groupNames.Contains(group.Name.Value));
 
     /// <summary>Where the transforms of the drawable rotate and scale about, in scene coordinates.</summary>
-    public static (double X, double Y) MeasurePivot(Drawable drawable, PixelSize frameSize, MediaTime time, FontManager fonts)
+    public static (double X, double Y) MeasurePivot(
+        Drawable drawable, PixelSize frameSize, MediaTime time, FontManager fonts, DecoderRegistry decoders)
     {
         var canvas = new Size(frameSize.Width, frameSize.Height);
         if (drawable.AlignmentX.Value == AlignmentX.Center
@@ -54,7 +56,8 @@ internal static class TrackingKeyframes
         }
 
         // Text is measured with the editor's fonts, as the renderer lays it out.
-        var context = new CompositionContext(time) { TargetDomain = new Rect(default, canvas), Fonts = fonts };
+        // Video opens only through the editor's decoders.
+        var context = new CompositionContext(time) { TargetDomain = new Rect(default, canvas), Fonts = fonts, Decoders = decoders };
         using var resource = (Drawable.Resource)drawable.ToResource(context);
         Size size = resource.Measure(canvas);
         Point origin = resource.TransformOrigin.ToPixels(size);

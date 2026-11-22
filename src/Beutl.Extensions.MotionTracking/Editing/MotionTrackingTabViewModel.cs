@@ -16,6 +16,7 @@ using Beutl.Extensions.MotionTracking.Tracking;
 using Beutl.Graphics;
 using Beutl.Logging;
 using Beutl.Media;
+using Beutl.Media.Decoding;
 using Beutl.ProjectSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -720,10 +721,11 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         };
 
         FontManager fonts = _services.GetRequiredService<FontManager>();
+        DecoderRegistry decoders = _services.GetRequiredService<DecoderRegistry>();
         int written = 0;
         foreach (Drawable drawable in element.Objects.OfType<Drawable>())
         {
-            (double pivotX, double pivotY) = TrackingKeyframes.MeasurePivot(drawable, SceneSize, referenceTime, fonts);
+            (double pivotX, double pivotY) = TrackingKeyframes.MeasurePivot(drawable, SceneSize, referenceTime, fonts, decoders);
             TransformKey[] keys = moving.ToTransformKeys(Use.Value, channels, pivotX, pivotY, smoothed);
             List<(TransformKey Key, MediaTime Time)> timed = ToKeyTimes(keys, element);
             if (timed.Count > 0)
@@ -915,7 +917,8 @@ public sealed class MotionTrackingTabViewModel : IToolContext
         _reader = null;
         _readerStale = false;
         _shownFrame = null;
-        SourceCapture capture = SourceFrameReader.Capture(_scene!, Source.Value ?? _boundSource!, _services.GetRequiredService<FontManager>());
+        SourceCapture capture = SourceFrameReader.Capture(
+            _scene!, Source.Value ?? _boundSource!, _services.GetRequiredService<FontManager>(), _services.GetRequiredService<DecoderRegistry>());
         SourceFrameReader reader = await Task.Run(() => SourceFrameReader.Open(capture));
         if (_lifetime.IsCancellationRequested)
         {

@@ -53,6 +53,22 @@ public class TrackingIntegrationTests
     }
 
     [AvaloniaTest]
+    public async Task FollowsAMovingVideoThroughTheRenderer()
+    {
+        HeadlessScene.EnsureAvailable();
+        using var f = new EditorFixture();
+        Element source = f.AddMovingVideo(2, -1, 20);
+        var tab = f.OpenTab(source);
+        TrackerViewModel tracker = tab.Trackers.Single();
+
+        await tab.TrackAsync(1);
+
+        Assert.That(tracker.Samples.Count, Is.EqualTo(21), tab.Status.Value);
+        Assert.That(tracker.PoseAt(20).X, Is.EqualTo(CenterX + 40).Within(0.25f));
+        Assert.That(tracker.PoseAt(20).Y, Is.EqualTo(CenterY - 20).Within(0.25f));
+    }
+
+    [AvaloniaTest]
     public async Task TracksFromThePlayheadInEitherDirection()
     {
         HeadlessScene.EnsureAvailable();
@@ -388,6 +404,29 @@ public class TrackingIntegrationTests
 
         tab.Apply();
 
+        using Bitmap first = HeadlessScene.Render(f.Scene, EditorFixture.Frame(0));
+        using Bitmap later = HeadlessScene.Render(f.Scene, EditorFixture.Frame(20));
+        double difference = HeadlessScene.Difference(first, later, EditorFixture.Width / 2 - 40, EditorFixture.Height / 2 - 40, 80, 80);
+        Assert.That(difference, Is.LessThan(2), "The tracked area does not move from frame to frame.");
+    }
+
+    [AvaloniaTest]
+    public async Task StabilizingAVideoHoldsItStill()
+    {
+        HeadlessScene.EnsureAvailable();
+        using var f = new EditorFixture();
+        Element source = f.AddMovingVideo(3, -2, 20);
+
+        // With its transform origin at a corner, applying has to open the video to measure it.
+        DrawableOf(source).TransformOrigin.Value = RelativePoint.TopLeft;
+        var tab = f.OpenTab(source);
+        await tab.TrackAsync(1);
+        tab.Use.Value = MotionUse.Lock;
+        f.Clock.Seek(EditorFixture.Frame(0));
+
+        tab.Apply();
+
+        Assert.That(GroupOf(source), Is.Not.Null, tab.Status.Value);
         using Bitmap first = HeadlessScene.Render(f.Scene, EditorFixture.Frame(0));
         using Bitmap later = HeadlessScene.Render(f.Scene, EditorFixture.Frame(20));
         double difference = HeadlessScene.Difference(first, later, EditorFixture.Width / 2 - 40, EditorFixture.Height / 2 - 40, 80, 80);

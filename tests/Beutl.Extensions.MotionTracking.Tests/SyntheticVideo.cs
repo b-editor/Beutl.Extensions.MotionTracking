@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+using System.Text;
 using Beutl.Extensions.MotionTracking.Tracking;
 using Beutl.Graphics;
 using Beutl.Media;
@@ -81,6 +83,90 @@ internal sealed class SyntheticVideo
         }
 
         bitmap.Save(path, EncodedImageFormat.Png);
+    }
+
+    // The texture moving by whole pixels, as an animated PNG of 30 frames a second, for scenes that hold it as a video.
+    // A point at (x, y) in the first frame is at (x + speedX * frame, y + speedY * frame) later on.
+    public void SaveMovingVideo(string path, int speedX, int speedY, int frames)
+    {
+        using FileStream file = File.Create(path);
+        file.Write([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+        uint sequence = 0;
+        for (int frame = 0; frame <= frames; frame++)
+        {
+            ImagePyramid image = Render(0, 0, new TrackPose(Width / 2 + speedX * frame, Height / 2 + speedY * frame));
+            List<(string Type, byte[] Data)> chunks = EncodePng(image[0]);
+            if (frame == 0)
+            {
+                WriteChunk(file, "IHDR", chunks.First(chunk => chunk.Type == "IHDR").Data);
+                WriteChunk(file, "acTL", [.. BigEndian((uint)frames + 1), .. BigEndian(0)]);
+            }
+
+            // Each frame replaces the one before for 1/30 of a second.
+            WriteChunk(file, "fcTL",
+                [.. BigEndian(sequence++), .. BigEndian((uint)Width), .. BigEndian((uint)Height), .. BigEndian(0), .. BigEndian(0), 0, 1, 0, 30, 0, 0]);
+            foreach (byte[] data in chunks.Where(chunk => chunk.Type == "IDAT").Select(chunk => chunk.Data))
+            {
+                if (frame == 0)
+                    WriteChunk(file, "IDAT", data);
+                else
+                    WriteChunk(file, "fdAT", [.. BigEndian(sequence++), .. data]);
+            }
+        }
+
+        WriteChunk(file, "IEND", []);
+    }
+
+    private static List<(string Type, byte[] Data)> EncodePng(GrayImage image)
+    {
+        using var bitmap = new Bitmap(image.Width, image.Height, BitmapColorType.Gray8, BitmapAlphaType.Opaque);
+        for (int y = 0; y < image.Height; y++)
+        {
+            Span<byte> row = bitmap.GetRow(y);
+            for (int x = 0; x < image.Width; x++)
+                row[x] = (byte)Math.Clamp(image.Pixels[y * image.Width + x], 0, 255);
+        }
+
+        using var png = new MemoryStream();
+        bitmap.Save(png, EncodedImageFormat.Png);
+        byte[] bytes = png.ToArray();
+        var chunks = new List<(string, byte[])>();
+        for (int offset = 8; offset < bytes.Length;)
+        {
+            int length = BinaryPrimitives.ReadInt32BigEndian(bytes.AsSpan(offset));
+            chunks.Add((Encoding.ASCII.GetString(bytes, offset + 4, 4), bytes[(offset + 8)..(offset + 8 + length)]));
+            offset += length + 12;
+        }
+
+        return chunks;
+    }
+
+    private static void WriteChunk(Stream stream, string type, byte[] data)
+    {
+        byte[] typed = [.. Encoding.ASCII.GetBytes(type), .. data];
+        stream.Write(BigEndian((uint)data.Length));
+        stream.Write(typed);
+        stream.Write(BigEndian(Crc32(typed)));
+    }
+
+    private static byte[] BigEndian(uint value)
+    {
+        var bytes = new byte[4];
+        BinaryPrimitives.WriteUInt32BigEndian(bytes, value);
+        return bytes;
+    }
+
+    private static uint Crc32(ReadOnlySpan<byte> data)
+    {
+        uint crc = 0xFFFFFFFF;
+        foreach (byte value in data)
+        {
+            crc ^= value;
+            for (int bit = 0; bit < 8; bit++)
+                crc = (crc & 1) != 0 ? 0xEDB88320 ^ (crc >> 1) : crc >> 1;
+        }
+
+        return ~crc;
     }
 
     private float SampleTexture(double x, double y)
