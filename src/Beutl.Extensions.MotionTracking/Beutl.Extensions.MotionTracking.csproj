@@ -1,12 +1,12 @@
-<Project Sdk="Beutl.Extensibility.Sdk/2.0.0-preview.15">
+<Project Sdk="Beutl.Extensibility.Sdk/2.0.0-preview.16">
 
     <PropertyGroup>
         <PackageId>Beutl.Extensions.MotionTracking</PackageId>
         <Title>Motion tracking</Title>
         <Description>Track points in a video and apply their motion to objects as keyframes, or stabilize shaky footage.</Description>
         <PackageTags>motion,tracking,tracker,stabilize,モーショントラッキング,トラッキング,追跡,スタビライズ,手ブレ補正</PackageTags>
-        <Version>0.1.2</Version>
-        <AssemblyVersion>0.1.2.0</AssemblyVersion>
+        <Version>0.1.3</Version>
+        <AssemblyVersion>0.1.3.0</AssemblyVersion>
         <Authors>Yuto Terada</Authors>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
